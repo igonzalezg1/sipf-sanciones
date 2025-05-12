@@ -1,4 +1,5 @@
 import { api } from 'boot/axios';
+import axios, { AxiosError } from 'axios';
 import { Notify } from 'quasar';
 import { useSessionStore } from 'stores/session';
 
@@ -17,32 +18,44 @@ export class BaseService {
     }
   }
 
-  async get<T>(url: string, params?: any): Promise<T | null> {
+  async get<T>(url: string, params?: unknown): Promise<T | null> {
     try {
       const response = await this.api.get<T>(url, { params });
       return response.data;
-    } catch (error: any) {
-      this.handleError(error);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        this.handleError(error);
+      } else {
+        this.handleError(new Error('Unknown error occurred'));
+      }
       return null;
     }
   }
 
-  async post<T>(url: string, data?: any): Promise<T | null> {
+  async post<T>(url: string, data?: unknown): Promise<T | null> {
     try {
       const response = await this.api.post<T>(url, data);
       return response.data;
-    } catch (error: any) {
-      this.handleError(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.handleError(error);
+      } else {
+        this.handleError(new Error('Unknown error occurred'));
+      }
       return null;
     }
   }
 
-  async put<T>(url: string, data?: any): Promise<T | null> {
+  async put<T>(url: string, data?: unknown): Promise<T | null> {
     try {
       const response = await this.api.put<T>(url, data);
       return response.data;
-    } catch (error: any) {
-      this.handleError(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.handleError(error);
+      } else {
+        this.handleError(new Error('Unknown error occurred'));
+      }
       return null;
     }
   }
@@ -51,15 +64,30 @@ export class BaseService {
     try {
       const response = await this.api.delete<T>(url);
       return response.data;
-    } catch (error: any) {
-      this.handleError(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.handleError(error);
+      } else {
+        this.handleError(new Error('Unknown error occurred'));
+      }
       return null;
     }
   }
 
-  private handleError(error: any) {
+  private handleError(error: unknown) {
     console.error('API Error:', error);
-    const message = error?.response?.data?.message || 'Error en la petición';
+
+    let message = 'Error en la petición';
+
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      const responseData = axiosError.response?.data as { message?: string };
+
+      message = responseData?.message || axiosError.message || message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+
     Notify.create({
       type: 'negative',
       message,

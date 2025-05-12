@@ -2,11 +2,21 @@
   <div v-if="isLoading" class="loading-overlay">
     <q-spinner-gears color="primary" size="10em" />
   </div>
-  <div class="row" v-if="!isLoading">
+  <div class="row">
     <div class="col-12">
       <p class="text-xl text-center">LISTA DE INCIDENCIAS</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <q-input filled v-model="search" label="Buscar" class="q-my-md" />
+      <q-btn color="primary" label="Buscar" class="q-my-md" @click="loadPage" />
+    </div>
+  </div>
+  <div class="row" v-if="!isLoading">
+    <div class="col-12">
       <table class="q-table">
-        <thead class="text-center">
+        <thead class="text-center bg-primary text-white">
           <tr>
             <th class="text-left">Folio</th>
             <th class="text-left">Fecha y hora</th>
@@ -61,44 +71,48 @@
 import { ref, onMounted } from 'vue';
 import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
 import { useQuasar } from 'quasar';
+import type { Incidencia } from 'entities/incidente/incidente.model';
 
 // Variables
 const isLoading = ref(true);
-const objectTetcnico = ref(false);
 const service = new IncidenciasService();
-const rowsPerPage = 3;
 const page = ref(1);
 const $q = useQuasar();
-const data = ref<any[]>([]);
-const pagination = ref({
-  total: 0,
-  per_page: 10,
-  current_page: 1,
-  total_pages: 1,
-});
+const data = ref<Incidencia[]>([]);
+const pagination = ref();
+const search = ref('');
 
 // Funciones
 onMounted(async () => {
   try {
     const response = await service.getIncidencias();
-    data.value = response.data;
-    pagination.value = response.meta.pagination;
-  } catch (error: any) {
+    if (response?.data) {
+      data.value = response.data;
+    }
+    pagination.value = response?.meta.pagination;
+  } catch (error: unknown) {
+    let message = 'Error inesperado';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
     $q.notify({
       type: 'negative',
-      message: error.message,
+      message,
     });
   } finally {
     isLoading.value = false;
   }
 });
 
-async function loadPage(pageNumber: number) {
+async function loadPage() {
   isLoading.value = true;
   try {
     const response = await service.getIncidencias();
-    data.value = response.data;
-    pagination.value = response.meta.pagination;
+    if (response?.data) {
+      data.value = response.data;
+    }
+    pagination.value = response?.meta.pagination;
     page.value = pagination.value.current_page;
   } catch (error) {
     $q.notify({

@@ -27,6 +27,8 @@ onBeforeMount(() => {
 
 watch(
   () => session.token,
-  (val) => {},
+  (val) => {
+    console.log('Token:', val);
+  },
 );
 </script>
