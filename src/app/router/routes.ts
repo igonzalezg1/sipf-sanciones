@@ -1,7 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 import SancionesJuridicopage from 'src/pages/juridico/SancionesPage.vue';
 import SancionesTecnicoPage from 'src/pages/tecnico/SancionesPage.vue';
-import SancionesCreatePage from 'pages/juridico/SancionesCreatePage.vue';
+import SancionesTecnicoCreatePage from 'src/pages/tecnico/SancionCreatePage.vue';
+import SancionesJuridicoCreatePage from 'pages/juridico/SancionesCreatePage.vue';
 import NotLogged from 'src/pages/NotLogged.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -20,9 +21,14 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Sanciones Jurídico', requiresAuth: true },
       },
       {
-        path: 'sanciones-crear',
-        component: SancionesCreatePage,
-        meta: { title: 'Sanciones', requiresAuth: true },
+        path: 'sanciones-juridico-crear',
+        component: SancionesJuridicoCreatePage,
+        meta: { title: 'Sanciones Jurídico', requiresAuth: true },
+      },
+      {
+        path: 'sanciones-tecnico-crear',
+        component: SancionesTecnicoCreatePage,
+        meta: { title: 'Sanciones Técnico', requiresAuth: true },
       },
     ],
   },

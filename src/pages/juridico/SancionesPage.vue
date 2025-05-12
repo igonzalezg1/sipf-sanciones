@@ -39,7 +39,7 @@
               <q-btn color="secondary" icon="visibility">
                 <q-tooltip class="bg-secondary">Ver incidencia</q-tooltip>
               </q-btn>
-              <q-btn color="secondary" icon="import_contacts" to="/sanciones-crear">
+              <q-btn color="secondary" icon="import_contacts" to="/sanciones-juridico-crear">
                 <q-tooltip class="bg-secondary">Ver sancion</q-tooltip>
               </q-btn>
             </td>
