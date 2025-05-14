@@ -81,11 +81,17 @@ const $q = useQuasar();
 const data = ref<Incidencia[]>([]);
 const pagination = ref();
 const search = ref('');
+const scope = ref({});
 
 // Funciones
 onMounted(async () => {
   try {
-    const response = await service.getIncidencias();
+    scope.value = {
+      porCentro: 1,
+      rutaAccesso: 'tecnico-sanciones',
+    };
+    const include = `sanciones,involucrados_para_sancion`;
+    const response = await service.getIncidencias(include, scope.value);
     if (response?.data) {
       data.value = response.data;
     }
@@ -108,7 +114,13 @@ onMounted(async () => {
 async function loadPage() {
   isLoading.value = true;
   try {
-    const response = await service.getIncidencias();
+    // TODO: Cambiar por el id del centro
+    scope.value = {
+      porCentro: 1,
+      rutaAccesso: 'tecnico-sanciones',
+    };
+    const include = `sanciones,involucrados_para_sancion`;
+    const response = await service.getIncidencias(include, scope.value);
     if (response?.data) {
       data.value = response.data;
     }
