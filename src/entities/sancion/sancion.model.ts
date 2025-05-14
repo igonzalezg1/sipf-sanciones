@@ -32,6 +32,8 @@ export interface SancionCreate {
   firmante_1_cargo: string | null;
   firmante_2_nombre: string | null;
   firmante_2_cargo: string | null;
+  centro_id: number | null;
+  involucrados: string | null;
 }
 
 export interface TipoSancion {

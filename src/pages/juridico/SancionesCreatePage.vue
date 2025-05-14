@@ -56,7 +56,8 @@
               v-model="dataForm.tipo_sancion_id"
               :options="tiposSancion"
               label="Tipo de sanción"
-              type="number"
+              emit-value
+              map-options
               class="q-ma-md"
             />
             <q-input
@@ -289,16 +290,22 @@ import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.mo
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { useIncidenciaStore } from 'stores/incidencias';
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
 
 const route = useRoute();
 const step = ref(1);
 const sancionId = ref(0);
 const tiposSancionResponse = ref<TipoSancion[] | null>([]);
+const involucradosSelected = ref<SancionInvolucrado[]>([]);
 const tiposSancion = ref<object[]>([]);
 const incidenciaStore = useIncidenciaStore();
 const incidencia = ref(incidenciaStore.getIncidencia());
 const sancionesService = new SancionesService();
 const tiposSancionService = new CatalogsService();
+const router = useRouter();
+const $q = useQuasar();
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -313,6 +320,8 @@ const dataForm = ref<SancionCreate>({
   firmante_1_cargo: '',
   firmante_2_nombre: '',
   firmante_2_cargo: '',
+  involucrados: '',
+  centro_id: null,
 });
 
 const selected = ref<Record<number, boolean>>({});
@@ -356,8 +365,33 @@ function handleCheckboxChange(id: number, checked: boolean) {
 
 async function guardarSancion() {
   const payload = dataForm.value;
-  await sancionesService.agregarSancion(payload);
-  console.log('Guardar sanción', dataForm.value);
+  payload.centro_id = incidencia.value.centro_id;
+
+  Object.entries(selected.value).forEach(([id, isSelected]) => {
+    if (isSelected) {
+      involucradosSelected.value.push({
+        incidente_id: incidenciaStore.getIncidencia().id,
+        incidente_involucrados_id: id,
+        sancion_id: 0,
+        id: 0,
+        involucrado_incidente: id,
+      });
+    }
+  });
+
+  payload.involucrados = JSON.stringify({ data: involucradosSelected.value });
+
+  const response = await sancionesService.agregarSancion(payload);
+  if (response !== null) {
+    $q.notify({
+      type: 'positive',
+      message: 'Sanción guardada correctamente',
+    });
+    await router.push({
+      path: '/sanciones-juridico',
+    });
+  }
+  console.log('Guardar sanción', response);
 }
 </script>
 <style scoped></style>
