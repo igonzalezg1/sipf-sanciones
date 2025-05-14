@@ -4,110 +4,178 @@
       <form>
         <div class="row q-mx-md">
           <div class="col-12">
-            <p class="text-xl">INCIDENCIA</p>
+            <p class="tw-text-2xl">INCIDENCIA</p>
           </div>
         </div>
         <div class="row">
           <div class="col-6">
-            <q-select
-              filled
-              v-model="dataForm.tipo_incidencia"
-              label="Tipo de incidencia"
-              type="number"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              readonly
-              v-model="dataForm.folio_incidencia"
-              label="Folio de incidencia"
-              type="text"
-              class="q-ma-md"
-            />
+            <p class="tw-text-lg q-mx-md tw-uppercase">
+              <span class="tw-font-semibold">Tipo de incidencia: </span
+              >{{ incidencia?.tipo_incidente?.label }}
+            </p>
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Folio de incidencia:</span>
+              {{ incidencia?.folio }}
+            </p>
           </div>
           <div class="col-6">
-            <q-input
-              filled
-              readonly
-              v-model="dataForm.fecha_incidente"
-              label="Fecha y Hora de incidente"
-              type="text"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              readonly
-              v-model="dataForm.personal_custodia"
-              label="Personal que custodia"
-              type="text"
-              class="q-ma-md"
-            />
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Fecha y Hora de incidente: </span
+              >{{ incidencia?.fecha_hora_registro }}
+            </p>
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Personal que custodia: </span
+              >{{ incidencia?.persona_registra }}
+            </p>
           </div>
         </div>
         <div class="row">
           <div class="col-12">
-            <q-input
-              filled
-              readonly
-              v-model="dataForm.descripcion_incidencia"
-              label="Descripción de la incidencia"
-              type="text"
-              class="q-ma-md"
-            />
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Descripción de la incidencia: </span
+              >{{ incidencia?.descripcion_incidente }}
+            </p>
+          </div>
+          <div class="col-12">
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Lugar de la incidencia: </span
+              >{{ incidencia?.lugar_incidente }}
+            </p>
           </div>
         </div>
 
         <div class="row q-mx-md">
           <div class="col-12">
-            <p class="text-xl">SANCION</p>
+            <p class="tw-text-2xl">SANCION</p>
           </div>
         </div>
-        <div class="row">
+        <div class="row tw-uppercase">
           <div class="col-6">
             <q-select
               filled
-              v-model="dataForm.tipo_incidencia"
-              label="Tipo de incidencia"
+              v-model="dataForm.tipo_sancion_id"
+              :options="tiposSancion"
+              label="Tipo de sanción"
               type="number"
               class="q-ma-md"
             />
             <q-input
               filled
-              readonly
-              v-model="dataForm.folio_incidencia"
-              label="Folio de incidencia"
-              type="text"
+              v-model="dataForm.dias_sancion"
+              label="Días de sanción"
+              type="number"
               class="q-ma-md"
+            />
+            <q-input
+              filled
+              v-model="dataForm.fecha_hora_inicio_sancion"
+              label="Fecha inicio de sanción"
+              type="date"
+              class="q-ma-md"
+            />
+            <q-input
+              filled
+              v-model="dataForm.observaciones"
+              label="Observaciones de la sanción"
+              type="textarea"
+              class="q-ma-md tw-uppercase"
             />
           </div>
           <div class="col-6">
             <q-input
               filled
-              readonly
-              v-model="dataForm.fecha_incidente"
-              label="Fecha y Hora de incidente"
+              v-model="dataForm.no_sesion_comite"
+              label="No de sesión de comite técnico"
               type="text"
               class="q-ma-md"
             />
             <q-input
               filled
-              readonly
-              v-model="dataForm.personal_custodia"
-              label="Personal que custodia"
+              v-model="dataForm.fecha_registro"
+              label="Fecha sesión de comite técnico"
               type="text"
               class="q-ma-md"
+            />
+            <q-input
+              filled
+              v-model="dataForm.fecha_hora_fin_sancion"
+              label="Fecha fin de sanción"
+              type="date"
+              class="q-ma-md"
+            />
+            <q-input
+              filled
+              v-model="dataForm.descripcion"
+              label="Descripción de la sanción"
+              type="textarea"
+              class="q-ma-md tw-uppercase"
             />
           </div>
         </div>
-        <div class="row">
-          <div class="col-12">
+        <div class="row tw-uppercase">
+          <div class="col-12">Involucrados</div>
+          <table class="q-table">
+            <thead class="text-center bg-primary text-white">
+              <tr>
+                <th>#</th>
+                <th>PPL</th>
+                <th>Expediente</th>
+                <th>Tipo de participación</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(involucrado, index) in incidencia?.involucrados?.data" :key="index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ involucrado.nombre_completo }}</td>
+                <td>{{ involucrado.identificador }}</td>
+                <td>{{ involucrado.tipo_participacion?.label }}</td>
+                <td>
+                  <q-checkbox
+                    color="secondary"
+                    :model-value="selected[involucrado.id] === true"
+                    @update:model-value="(val) => handleCheckboxChange(incidencia.id, val)"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row tw-uppercase">
+          <div class="col-3">
             <q-input
               filled
-              readonly
-              v-model="dataForm.descripcion_incidencia"
-              label="Descripción de la incidencia"
+              v-model="dataForm.firmante_1_nombre"
+              label="Nombre del firmante 1"
               type="text"
-              class="q-ma-md"
+              class="q-ma-sm"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="dataForm.firmante_1_cargo"
+              label="Cargo del firmante 1"
+              type="text"
+              class="q-ma-sm"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="dataForm.firmante_2_nombre"
+              label="Nombre del firmante 2"
+              type="text"
+              class="q-ma-sm"
+            />
+          </div>
+          <div class="col-3">
+            <q-input
+              filled
+              v-model="dataForm.firmante_2_cargo"
+              label="Cargo del firmante 2"
+              type="text"
+              class="q-ma-sm"
             />
           </div>
         </div>
@@ -124,7 +192,7 @@
       />
     </div>
   </div>
-  <div class="row">
+  <div class="row" v-if="sancionId > 0">
     <div class="col-12">
       <q-stepper v-model="step" vertical color="primary" animated>
         <q-step :name="1" title="OPCIONES DE SANCION" icon="settings" :done="step > 1">
@@ -214,32 +282,59 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import type { SancionCreate } from 'src/entities/sancion/sancion.model';
+import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
+import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
+import { useIncidenciaStore } from 'stores/incidencias';
 
 const route = useRoute();
 const step = ref(1);
 const sancionId = ref(0);
-const dataForm: SancionCreate = {
-  tipo_incidencia: 0,
-  fecha_incidente: '',
-  folio_incidencia: '',
-  personal_custodia: '',
-  descripcion_incidencia: '',
-  tipo_sancion_id: '',
+const tiposSancionResponse = ref<TipoSancion[] | null>([]);
+const tiposSancion = ref<object[]>([]);
+const incidenciaStore = useIncidenciaStore();
+const incidencia = ref(incidenciaStore.getIncidencia());
+
+const dataForm = ref<SancionCreate>({
+  tipo_sancion_id: 0,
+  no_sesion_comite: '',
   fecha_registro: '',
   fecha_hora_inicio_sancion: '',
   fecha_hora_fin_sancion: '',
   dias_sancion: '',
   fecha_hora_fin_real_sancion: '',
-  lugar_aplicacion: '',
+  observaciones: '',
   descripcion: '',
   firmante_1_nombre: '',
   firmante_1_cargo: '',
   firmante_2_nombre: '',
   firmante_2_cargo: '',
-};
-onMounted(() => {
-  sancionId.value = Number(route.query.incidenciaId);
 });
+
+const selected = ref<Record<number, boolean>>({});
+
+onMounted(async () => {
+  if (route.query.incidenciaId) {
+    sancionId.value = Number(route.query.incidenciaId);
+  } else {
+    sancionId.value = 0;
+  }
+
+  const catalogsService = new CatalogsService();
+  tiposSancionResponse.value = await catalogsService.getTiposSancion();
+  if (tiposSancionResponse.value) {
+    tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
+      label: tipo.descripcion,
+      value: tipo.id,
+    }));
+  }
+});
+
+function handleCheckboxChange(id: number, checked: boolean) {
+  if (checked) {
+    selected.value[id] = true;
+  } else {
+    delete selected.value[id];
+  }
+}
 </script>
 <style scoped></style>

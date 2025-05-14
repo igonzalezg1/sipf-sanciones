@@ -8,9 +8,29 @@
     </div>
   </div>
   <div class="row">
+    <div class="col-12 q-my-md">
+      <q-input dark dense standout v-model="search" input-class="text-right" class="q-ml-md">
+        <template v-slot:append>
+          <q-icon v-if="search === ''" name="search" />
+          <q-icon v-else name="clear" class="cursor-pointer" @click="search = ''" />
+        </template>
+      </q-input>
+    </div>
+  </div>
+  <div class="row" v-if="Object.keys(selected).length > 0">
     <div class="col-12">
-      <q-input filled v-model="search" label="Buscar" class="q-my-md" />
-      <q-btn color="primary" label="Buscar" class="q-my-md" @click="loadPage" />
+      <q-btn
+        color="primary"
+        label="Marcar sanciones a no visto (por comite)"
+        class="q-ma-md"
+        @click="sendNoVisto"
+      />
+      <q-btn
+        color="primary"
+        label="Marcar enviado a comite tecnico"
+        class="q-ma-md"
+        @click="enviarComite"
+      />
     </div>
   </div>
   <div class="row" v-if="!isLoading">
@@ -18,17 +38,40 @@
       <table class="q-table">
         <thead class="text-center bg-primary text-white">
           <tr>
-            <th class="text-left">Folio</th>
-            <th class="text-left">Fecha y hora</th>
-            <th class="text-left">Tipo de incidencia</th>
-            <th class="text-left">Personal que custodia</th>
-            <th class="text-left">Cargo del personal</th>
-            <th class="text-left">Estatus de incidencia</th>
-            <th class="text-left">Acciones</th>
+            <th class="">
+              <q-checkbox color="primary" v-model="checkbox" />
+            </th>
+            <th class="">Folio</th>
+            <th class="">Fecha y hora</th>
+            <th class="">Tipo de incidencia</th>
+            <th class="">Personal que custodia</th>
+            <th class="">Cargo del personal</th>
+            <th class="">Estatus de incidencia</th>
+            <th class="">Acciones</th>
           </tr>
         </thead>
         <tbody v-if="data.length > 0">
           <tr v-for="(incidencia, index) in data" :key="index">
+            <td>
+              <q-icon
+                v-if="
+                  incidencia.estatus == 'Sanción no vista por comité técnico' ||
+                  incidencia.confirmada_por_comite_tecnico === 1
+                "
+                name="check_circle"
+                size="2em"
+                color="primary"
+              />
+              <q-checkbox
+                v-if="
+                  incidencia.estatus === 'Sanción no vista por comité técnico' ||
+                  incidencia.confirmada_por_comite_tecnico !== 1
+                "
+                color="secondary"
+                :model-value="selected[incidencia.id] === true"
+                @update:model-value="(val) => handleCheckboxChange(incidencia.id, val)"
+              />
+            </td>
             <td>{{ incidencia.folio }}</td>
             <td>{{ incidencia.fecha_hora_registro }}</td>
             <td>{{ incidencia.tipo_incidente_descripcion }}</td>
@@ -39,7 +82,12 @@
               <q-btn color="secondary" icon="visibility">
                 <q-tooltip class="bg-secondary">Ver incidencia</q-tooltip>
               </q-btn>
-              <q-btn color="secondary" icon="import_contacts" to="/sanciones-juridico-crear">
+              <q-btn
+                color="secondary"
+                icon="import_contacts"
+                v-if="incidencia.confirmada_por_comite_tecnico === 1"
+                @click="verSancion(incidencia)"
+              >
                 <q-tooltip class="bg-secondary">Ver sancion</q-tooltip>
               </q-btn>
             </td>
@@ -71,7 +119,10 @@
 import { ref, onMounted } from 'vue';
 import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
 import { useQuasar } from 'quasar';
+import { useSessionStore } from 'stores/session';
+import { useIncidenciaStore } from 'stores/incidencias';
 import type { Incidencia } from 'entities/incidente/incidente.model';
+import { useRouter } from 'vue-router';
 
 // Variables
 const isLoading = ref(true);
@@ -81,11 +132,24 @@ const $q = useQuasar();
 const data = ref<Incidencia[]>([]);
 const pagination = ref();
 const search = ref('');
+const checkbox = false;
+const selected = ref<Record<number, boolean>>({});
+const sessionStore = useSessionStore();
+const incidenciaStore = useIncidenciaStore();
+const scope = ref({});
+const router = useRouter();
 
 // Funciones
 onMounted(async () => {
   try {
-    const response = await service.getIncidencias();
+    console.log('sessionStore', sessionStore.expediente?.id);
+    scope.value = {
+      porExpedienteEnviado: sessionStore.expediente?.id,
+      rutaAccesso: 'juridico-sanciones',
+    };
+    const include = 'sanciones,involucrados_para_sancion';
+    // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;
+    const response = await service.getIncidencias(include, scope.value);
     if (response?.data) {
       data.value = response.data;
     }
@@ -108,7 +172,13 @@ onMounted(async () => {
 async function loadPage() {
   isLoading.value = true;
   try {
-    const response = await service.getIncidencias();
+    scope.value = {
+      porExpedienteEnviado: sessionStore.expediente?.id,
+      rutaAccesso: 'juridico-sanciones',
+    };
+    const include = 'sanciones,involucrados_para_sancion';
+    // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;
+    const response = await service.getIncidencias(include, scope.value);
     if (response?.data) {
       data.value = response.data;
     }
@@ -122,6 +192,42 @@ async function loadPage() {
   } finally {
     isLoading.value = false;
   }
+}
+
+async function sendNoVisto() {
+  isLoading.value = true;
+  const ids = Object.keys(selected.value)
+    .filter((key) => selected.value[Number(key)])
+    .map(Number);
+  const response = await service.marcarNoVisto(ids);
+  await loadPage();
+  isLoading.value = false;
+  console.log(response);
+}
+
+async function enviarComite() {
+  isLoading.value = true;
+  const ids = Object.keys(selected.value)
+    .filter((key) => selected.value[Number(key)])
+    .map(Number);
+  const response = await service.enviarComite(ids);
+  await loadPage();
+  isLoading.value = false;
+  console.log(response);
+}
+
+function handleCheckboxChange(id: number, checked: boolean) {
+  if (checked) {
+    selected.value[id] = true;
+  } else {
+    delete selected.value[id];
+  }
+}
+
+async function verSancion(incidencia: Incidencia) {
+  incidenciaStore.setIncidencia(incidencia);
+  localStorage.setItem('incidencia', JSON.stringify(incidencia));
+  await router.push('/sanciones-juridico-crear');
 }
 </script>
 <style scoped>

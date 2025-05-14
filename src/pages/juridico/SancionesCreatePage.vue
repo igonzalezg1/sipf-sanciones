@@ -11,21 +11,21 @@
           <div class="col-6">
             <p class="tw-text-lg q-mx-md tw-uppercase">
               <span class="tw-font-semibold">Tipo de incidencia: </span
-              >{{ dataForm.tipo_incidencia }}
+              >{{ incidencia?.tipo_incidente?.label }}
             </p>
             <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
               <span class="tw-font-semibold">Folio de incidencia:</span>
-              {{ dataForm.folio_incidencia }}
+              {{ incidencia?.folio }}
             </p>
           </div>
           <div class="col-6">
             <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
               <span class="tw-font-semibold">Fecha y Hora de incidente: </span
-              >{{ dataForm.fecha_incidente }}
+              >{{ incidencia?.fecha_hora_registro }}
             </p>
             <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
               <span class="tw-font-semibold">Personal que custodia: </span
-              >{{ dataForm.personal_custodia }}
+              >{{ incidencia?.persona_registra }}
             </p>
           </div>
         </div>
@@ -33,7 +33,13 @@
           <div class="col-12">
             <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
               <span class="tw-font-semibold">Descripción de la incidencia: </span
-              >{{ dataForm.descripcion_incidencia }}
+              >{{ incidencia?.descripcion_incidente }}
+            </p>
+          </div>
+          <div class="col-12">
+            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
+              <span class="tw-font-semibold">Lugar de la incidencia: </span
+              >{{ incidencia?.lugar_incidente }}
             </p>
           </div>
         </div>
@@ -48,8 +54,16 @@
             <q-select
               filled
               v-model="dataForm.tipo_sancion_id"
+              :options="tiposSancion"
               label="Tipo de sanción"
               type="number"
+              class="q-ma-md"
+            />
+            <q-input
+              filled
+              v-model="dataForm.fecha_registro"
+              label="Fecha sesión de comite técnico"
+              type="date"
               class="q-ma-md"
             />
             <q-input
@@ -57,35 +71,22 @@
               v-model="dataForm.fecha_hora_inicio_sancion"
               label="Fecha inicio de sanción"
               type="date"
+              readonly
               class="q-ma-md"
             />
             <q-input
               filled
-              v-model="dataForm.fecha_hora_fin_sancion"
-              label="Fecha fin de sanción"
-              type="date"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.fecha_hora_fin_sancion"
-              label="Lugar de aplicacion de la sanción"
+              v-model="dataForm.observaciones"
+              label="Observaciones de la sanción"
               type="textarea"
-              class="q-ma-md"
+              class="q-ma-md tw-uppercase"
             />
           </div>
           <div class="col-6">
             <q-input
               filled
-              v-model="dataForm.fecha_incidente"
-              label="Fecha de sanción"
-              type="text"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.personal_custodia"
-              label="Fecha real de fin de sanción"
+              v-model="dataForm.no_sesion_comite"
+              label="No de sesión de comite técnico"
               type="text"
               class="q-ma-md"
             />
@@ -94,6 +95,15 @@
               v-model="dataForm.dias_sancion"
               label="Días de sanción"
               type="number"
+              class="q-ma-md"
+            />
+
+            <q-input
+              filled
+              v-model="dataForm.fecha_hora_fin_sancion"
+              readonly
+              label="Fecha fin de sanción"
+              type="date"
               class="q-ma-md"
             />
             <q-input
@@ -118,26 +128,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Nombre PPL</td>
-                <td>Expediente</td>
-                <td>Tipo de participación</td>
+              <tr v-for="(involucrado, index) in incidencia?.involucrados?.data" :key="index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ involucrado.nombre_completo }}</td>
+                <td>{{ involucrado.identificador }}</td>
+                <td>{{ involucrado.tipo_participacion?.label }}</td>
                 <td>
-                  <q-toggle v-model="dataForm.firmante_2_cargo" color="primary" class="q-ma-md" />
-                </td>
-              </tr>
-              <!-- <tr v-for="(involucrado, index) in dataForm.involucrados" :key="index">
-                <td>{{ involucrado.nombre }}</td>
-                <td>{{ involucrado.cargo }}</td>
-                <td>
-                  <q-btn
-                    color="negative"
-                    icon="delete"
-                    @click="dataForm.involucrados.splice(index, 1)"
+                  <q-checkbox
+                    color="secondary"
+                    :model-value="selected[involucrado.id] === true"
+                    @update:model-value="(val) => handleCheckboxChange(incidencia.id, val)"
                   />
                 </td>
-              </tr> -->
+              </tr>
             </tbody>
           </table>
         </div>
@@ -187,7 +190,7 @@
         class="q-mt-md"
         color="primary"
         label="Crear Sanción"
-        to="/sanciones-crear"
+        @click="guardarSancion"
         icon="add"
       />
     </div>
@@ -280,38 +283,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import type { SancionCreate } from 'src/entities/sancion/sancion.model';
+import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
+import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
+import { useIncidenciaStore } from 'stores/incidencias';
 
 const route = useRoute();
 const step = ref(1);
 const sancionId = ref(0);
-const dataForm: SancionCreate = {
-  tipo_incidencia: 0,
-  fecha_incidente: '',
-  folio_incidencia: '',
-  personal_custodia: '',
-  descripcion_incidencia: '',
-  tipo_sancion_id: '',
+const tiposSancionResponse = ref<TipoSancion[] | null>([]);
+const tiposSancion = ref<object[]>([]);
+const incidenciaStore = useIncidenciaStore();
+const incidencia = ref(incidenciaStore.getIncidencia());
+
+const dataForm = ref<SancionCreate>({
+  tipo_sancion_id: 0,
+  no_sesion_comite: '',
   fecha_registro: '',
   fecha_hora_inicio_sancion: '',
   fecha_hora_fin_sancion: '',
   dias_sancion: '',
   fecha_hora_fin_real_sancion: '',
-  lugar_aplicacion: '',
+  observaciones: '',
   descripcion: '',
   firmante_1_nombre: '',
   firmante_1_cargo: '',
   firmante_2_nombre: '',
   firmante_2_cargo: '',
-};
-onMounted(() => {
+});
+
+const selected = ref<Record<number, boolean>>({});
+
+onMounted(async () => {
   if (route.query.incidenciaId) {
     sancionId.value = Number(route.query.incidenciaId);
   } else {
     sancionId.value = 0;
   }
+
+  const catalogsService = new CatalogsService();
+  tiposSancionResponse.value = await catalogsService.getTiposSancion();
+  if (tiposSancionResponse.value) {
+    tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
+      label: tipo.descripcion,
+      value: tipo.id,
+    }));
+  }
 });
+
+watch(
+  () => Number(dataForm.value.dias_sancion),
+  (newValue: number) => {
+    if (isNaN(newValue) || !dataForm.value.fecha_registro) return;
+    const fechaInicio = new Date(dataForm.value.fecha_registro);
+    fechaInicio.setDate(fechaInicio.getDate() + 3);
+    dataForm.value.fecha_hora_inicio_sancion = fechaInicio.toISOString().substring(0, 10);
+    const fechaFin = new Date(fechaInicio);
+    fechaFin.setDate(fechaFin.getDate() + newValue);
+    dataForm.value.fecha_hora_fin_sancion = fechaFin.toISOString().substring(0, 10);
+  },
+);
+
+function handleCheckboxChange(id: number, checked: boolean) {
+  if (checked) {
+    selected.value[id] = true;
+  } else {
+    delete selected.value[id];
+  }
+}
+
+function guardarSancion() {
+  console.log('Guardar sanción', dataForm.value);
+}
 </script>
 <style scoped></style>

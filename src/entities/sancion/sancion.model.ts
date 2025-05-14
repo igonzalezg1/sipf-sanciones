@@ -20,21 +20,25 @@ export interface SancionData {
 }
 
 export interface SancionCreate {
-  tipo_incidencia: number;
-  fecha_incidente: string;
-  folio_incidencia: string;
-  personal_custodia: string;
-  descripcion_incidencia: string;
-  tipo_sancion_id: string;
+  tipo_sancion_id: number;
+  no_sesion_comite: string | null;
   fecha_registro: string | null;
   fecha_hora_inicio_sancion: string | null;
   fecha_hora_fin_sancion: string | null;
   dias_sancion: string | null;
   fecha_hora_fin_real_sancion: string | null;
-  lugar_aplicacion: string | null;
+  observaciones: string | null;
   descripcion: string | null;
   firmante_1_nombre: string | null;
   firmante_1_cargo: string | null;
   firmante_2_nombre: string | null;
   firmante_2_cargo: string | null;
+}
+
+export interface TipoSancion {
+  value: number;
+  text: string;
+  id: number;
+  descripcion: string;
+  label: string;
 }
