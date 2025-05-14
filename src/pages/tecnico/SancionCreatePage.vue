@@ -61,9 +61,9 @@
             />
             <q-input
               filled
-              v-model="dataForm.dias_sancion"
-              label="Días de sanción"
-              type="number"
+              v-model="dataForm.fecha_registro"
+              label="Fecha sesión de comite técnico"
+              type="date"
               class="q-ma-md"
             />
             <q-input
@@ -71,6 +71,7 @@
               v-model="dataForm.fecha_hora_inicio_sancion"
               label="Fecha inicio de sanción"
               type="date"
+              readonly
               class="q-ma-md"
             />
             <q-input
@@ -91,14 +92,16 @@
             />
             <q-input
               filled
-              v-model="dataForm.fecha_registro"
-              label="Fecha sesión de comite técnico"
-              type="text"
+              v-model="dataForm.dias_sancion"
+              label="Días de sanción"
+              type="number"
               class="q-ma-md"
             />
+
             <q-input
               filled
               v-model="dataForm.fecha_hora_fin_sancion"
+              readonly
               label="Fecha fin de sanción"
               type="date"
               class="q-ma-md"
@@ -187,7 +190,7 @@
         class="q-mt-md"
         color="primary"
         label="Crear Sanción"
-        to="/sanciones-crear"
+        @click="guardarSancion"
         icon="add"
       />
     </div>
@@ -280,10 +283,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
+import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { useIncidenciaStore } from 'stores/incidencias';
 
 const route = useRoute();
@@ -293,6 +297,8 @@ const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const tiposSancion = ref<object[]>([]);
 const incidenciaStore = useIncidenciaStore();
 const incidencia = ref(incidenciaStore.getIncidencia());
+const sancionesService = new SancionesService();
+const tiposSancionService = new CatalogsService();
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -301,7 +307,6 @@ const dataForm = ref<SancionCreate>({
   fecha_hora_inicio_sancion: '',
   fecha_hora_fin_sancion: '',
   dias_sancion: '',
-  fecha_hora_fin_real_sancion: '',
   observaciones: '',
   descripcion: '',
   firmante_1_nombre: '',
@@ -319,8 +324,7 @@ onMounted(async () => {
     sancionId.value = 0;
   }
 
-  const catalogsService = new CatalogsService();
-  tiposSancionResponse.value = await catalogsService.getTiposSancion();
+  tiposSancionResponse.value = await tiposSancionService.getTiposSancion();
   if (tiposSancionResponse.value) {
     tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
       label: tipo.descripcion,
@@ -329,12 +333,31 @@ onMounted(async () => {
   }
 });
 
+watch(
+  () => Number(dataForm.value.dias_sancion),
+  (newValue: number) => {
+    if (isNaN(newValue) || !dataForm.value.fecha_registro) return;
+    const fechaInicio = new Date(dataForm.value.fecha_registro);
+    fechaInicio.setDate(fechaInicio.getDate() + 3);
+    dataForm.value.fecha_hora_inicio_sancion = fechaInicio.toISOString().substring(0, 10);
+    const fechaFin = new Date(fechaInicio);
+    fechaFin.setDate(fechaFin.getDate() + newValue);
+    dataForm.value.fecha_hora_fin_sancion = fechaFin.toISOString().substring(0, 10);
+  },
+);
+
 function handleCheckboxChange(id: number, checked: boolean) {
   if (checked) {
     selected.value[id] = true;
   } else {
     delete selected.value[id];
   }
+}
+
+async function guardarSancion() {
+  const payload = dataForm.value;
+  await sancionesService.agregarSancion(payload);
+  console.log('Guardar sanción', dataForm.value);
 }
 </script>
 <style scoped></style>

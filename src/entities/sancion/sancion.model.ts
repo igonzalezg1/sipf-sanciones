@@ -26,7 +26,6 @@ export interface SancionCreate {
   fecha_hora_inicio_sancion: string | null;
   fecha_hora_fin_sancion: string | null;
   dias_sancion: string | null;
-  fecha_hora_fin_real_sancion: string | null;
   observaciones: string | null;
   descripcion: string | null;
   firmante_1_nombre: string | null;

@@ -287,6 +287,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
+import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { useIncidenciaStore } from 'stores/incidencias';
 
 const route = useRoute();
@@ -296,6 +297,8 @@ const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const tiposSancion = ref<object[]>([]);
 const incidenciaStore = useIncidenciaStore();
 const incidencia = ref(incidenciaStore.getIncidencia());
+const sancionesService = new SancionesService();
+const tiposSancionService = new CatalogsService();
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -304,7 +307,6 @@ const dataForm = ref<SancionCreate>({
   fecha_hora_inicio_sancion: '',
   fecha_hora_fin_sancion: '',
   dias_sancion: '',
-  fecha_hora_fin_real_sancion: '',
   observaciones: '',
   descripcion: '',
   firmante_1_nombre: '',
@@ -322,8 +324,7 @@ onMounted(async () => {
     sancionId.value = 0;
   }
 
-  const catalogsService = new CatalogsService();
-  tiposSancionResponse.value = await catalogsService.getTiposSancion();
+  tiposSancionResponse.value = await tiposSancionService.getTiposSancion();
   if (tiposSancionResponse.value) {
     tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
       label: tipo.descripcion,
@@ -353,7 +354,9 @@ function handleCheckboxChange(id: number, checked: boolean) {
   }
 }
 
-function guardarSancion() {
+async function guardarSancion() {
+  const payload = dataForm.value;
+  await sancionesService.agregarSancion(payload);
   console.log('Guardar sanción', dataForm.value);
 }
 </script>
