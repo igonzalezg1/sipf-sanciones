@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row" v-if="!sancion">
     <div class="col-12">
       <form>
         <div class="row q-mx-md">
@@ -196,7 +196,7 @@
       />
     </div>
   </div>
-  <div class="row" v-if="sancionId > 0">
+  <div class="row" v-if="sancion">
     <div class="col-12">
       <q-stepper v-model="step" vertical color="primary" animated>
         <q-step :name="1" title="OPCIONES DE SANCION" icon="settings" :done="step > 1">
@@ -207,8 +207,20 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <q-btn class="q-mx-lg" color="primary" label="Ver sanción" icon="visibility" />
+              <q-btn
+                class="q-mx-lg"
+                color="primary"
+                label="Imprimir acta de sanción"
+                @click="getPdf"
+                icon="description"
+              />
+              <q-btn
+                class="q-mx-lg"
+                color="primary"
+                label="Adjuntar acta de sanción"
+                icon="attach_file"
+              />
             </q-card-section>
           </q-card>
 
@@ -286,19 +298,21 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
+import type { SancionData, SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { useIncidenciaStore } from 'stores/incidencias';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
+import { base64toBlob } from 'src/app/helpers/file-helper';
 
 const route = useRoute();
 const step = ref(1);
 const sancionId = ref(0);
 const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const involucradosSelected = ref<SancionInvolucrado[]>([]);
+const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
 const incidenciaStore = useIncidenciaStore();
 const incidencia = ref(incidenciaStore.getIncidencia());
@@ -327,6 +341,9 @@ const dataForm = ref<SancionCreate>({
 const selected = ref<Record<number, boolean>>({});
 
 onMounted(async () => {
+  if (incidencia.value.sanciones) {
+    sancion.value = incidencia.value.sanciones.data[0];
+  }
   if (route.query.incidenciaId) {
     sancionId.value = Number(route.query.incidenciaId);
   } else {
@@ -392,6 +409,30 @@ async function guardarSancion() {
     });
   }
   console.log('Guardar sanción', response);
+}
+
+async function getPdf() {
+  const response = await sancionesService.generarPdf(sancion.value?.id);
+  if (response) {
+    const base_ = response.base64Pdf;
+    const base64Data = base_.replace(/^data:application\/pdf;base64,/, '');
+    const blob = base64toBlob(base64Data, 'application/pdf');
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl);
+  }
+  // this.req['get'](url, parametros)
+  //   .then((res: any) => {
+  //     this.ses.loading.hide();
+  //     let base_ = res.base64Pdf;
+  //     const base64Data = base_.replace(/^data:application\/pdf;base64,/, '');
+  //     const blob = this.base64toBlob(base64Data, 'application/pdf');
+  //     const blobUrl = URL.createObjectURL(blob);
+  //     window.open(blobUrl);
+  //     this.ses.loading.hide();
+  //   })
+  //   .catch((err: any) => {
+  //     console.error('ERROR', err);
+  //   });
 }
 </script>
 <style scoped></style>

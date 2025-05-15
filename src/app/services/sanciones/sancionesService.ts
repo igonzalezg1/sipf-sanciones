@@ -7,4 +7,8 @@ export class SancionesService extends BaseService {
   async agregarSancion(payload: SancionCreate): Promise<unknown> {
     return this.post(`${this.baseUrl}`, payload);
   }
+
+  async generarPdf(id?: number): Promise<{ base64Pdf: string } | null> {
+    return this.get(`${this.baseUrl}/${id}/pdf`);
+  }
 }
