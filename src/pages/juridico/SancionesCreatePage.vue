@@ -219,6 +219,7 @@
                 class="q-mx-lg"
                 color="primary"
                 label="Adjuntar acta de sanción"
+                @click="showModalUpload = true"
                 icon="attach_file"
               />
             </q-card-section>
@@ -293,6 +294,8 @@
       </q-stepper>
     </div>
   </div>
+
+  <UploadFileModal v-model="showModalUpload" :sancionId="sancion.id" v-if="sancion" />
 </template>
 
 <script setup lang="ts">
@@ -306,20 +309,26 @@ import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
 import { base64toBlob } from 'src/app/helpers/file-helper';
+import UploadFileModal from './UploadFileModal.vue';
 
+// Stores
+const incidenciaStore = useIncidenciaStore();
+// Services
+const sancionesService = new SancionesService();
+const tiposSancionService = new CatalogsService();
+const router = useRouter();
 const route = useRoute();
+const $q = useQuasar();
+// Variables
+const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
 const sancionId = ref(0);
 const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const involucradosSelected = ref<SancionInvolucrado[]>([]);
 const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
-const incidenciaStore = useIncidenciaStore();
-const incidencia = ref(incidenciaStore.getIncidencia());
-const sancionesService = new SancionesService();
-const tiposSancionService = new CatalogsService();
-const router = useRouter();
-const $q = useQuasar();
+// Variables de modales
+const showModalUpload = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -420,19 +429,6 @@ async function getPdf() {
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl);
   }
-  // this.req['get'](url, parametros)
-  //   .then((res: any) => {
-  //     this.ses.loading.hide();
-  //     let base_ = res.base64Pdf;
-  //     const base64Data = base_.replace(/^data:application\/pdf;base64,/, '');
-  //     const blob = this.base64toBlob(base64Data, 'application/pdf');
-  //     const blobUrl = URL.createObjectURL(blob);
-  //     window.open(blobUrl);
-  //     this.ses.loading.hide();
-  //   })
-  //   .catch((err: any) => {
-  //     console.error('ERROR', err);
-  //   });
 }
 </script>
 <style scoped></style>
