@@ -228,8 +228,16 @@
                 v-if="sancion?.sancion_file != null"
                 class="q-mx-lg"
                 color="primary"
+                label="Ver acta de sanción"
+                @click="getPdfUploaded"
+                icon="file_present"
+              />
+              <q-btn
+                v-if="sancion?.sancion_file != null"
+                class="q-mx-lg"
+                color="primary"
                 label="Enviar a seguridad"
-                @click="getPdf"
+                @click="mandarSeguridad"
                 icon="send"
               />
             </q-card-section>
@@ -443,6 +451,22 @@ async function getPdf() {
     const blob = base64toBlob(base64Data, 'application/pdf');
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl);
+  }
+}
+
+function getPdfUploaded() {
+  const fileUrl = `${import.meta.env.VITE_API_STORAGE_URL}${sancion.value?.sancion_file}`;
+  console.log('fileUrl', fileUrl);
+  window.open(fileUrl, '_blank');
+}
+
+async function mandarSeguridad() {
+  const response = await sancionesService.mandarSeguridad(sancion.value?.id);
+  if (response) {
+    $q.notify({
+      type: 'positive',
+      message: 'Sanción enviada a seguridad correctamente',
+    });
   }
 }
 

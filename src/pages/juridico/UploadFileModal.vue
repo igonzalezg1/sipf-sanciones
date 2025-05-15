@@ -22,8 +22,8 @@
           @uploaded="onUploaded"
           @failed="onUploadFailed"
           label="Subir PDF (máx. 10MB)"
+          :auto-upload="false"
           field-name="sancion_file"
-          auto-upload
           :form-fields="formFields"
         />
       </q-card-section>

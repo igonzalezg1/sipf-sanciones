@@ -12,8 +12,8 @@ export class SancionesService extends BaseService {
     return this.get(`${this.baseUrl}/${id}/pdf`);
   }
 
-  async mandarSeguridad(id?: number): Promise<unknown> {
+  async mandarSeguridad(sancion_id?: number): Promise<unknown> {
     const payload = {};
-    return this.patch(`${this.baseUrl}/${id}/mandar-seguridad`, payload);
+    return this.patch(`${this.baseUrl}/${sancion_id}/enviar`, payload);
   }
 }
