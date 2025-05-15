@@ -227,6 +227,11 @@ function handleCheckboxChange(id: number, checked: boolean) {
 async function verSancion(incidencia: Incidencia) {
   incidenciaStore.setIncidencia(incidencia);
   localStorage.setItem('incidencia', JSON.stringify(incidencia));
+  if (incidencia.sanciones && incidencia.sanciones.data && incidencia.sanciones.data.length > 0) {
+    localStorage.setItem('sanciones', JSON.stringify(incidencia.sanciones.data[0]));
+  } else {
+    localStorage.setItem('sanciones', JSON.stringify(null));
+  }
   await router.push('/sanciones-juridico-crear');
 }
 </script>

@@ -56,7 +56,7 @@ const emit = defineEmits<{
 const $q = useQuasar();
 
 const uploadUrl = computed(() => {
-  return `http://localhost:8000/api/v1/tecnico/seguridad/sanciones/${props.sancionId}/registro-fisico`;
+  return `${import.meta.env.VITE_APP_API_URL}/tecnico/seguridad/sanciones/${props.sancionId}/registro-fisico`;
 });
 
 const formFields = computed(() => [
@@ -95,6 +95,8 @@ const onRejected = (rejectedEntries: QRejectedEntry[]) => {
 };
 
 const onUploaded = (info: { files: readonly File[]; xhr: XMLHttpRequest }) => {
+  const response = JSON.parse(info.xhr.response);
+  localStorage.setItem('sanciones', JSON.stringify(response));
   $q.notify({
     type: 'positive',
     message: 'Archivo subido correctamente',

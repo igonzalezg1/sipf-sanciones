@@ -209,6 +209,7 @@
             <q-card-section class="q-pa-md">
               <q-btn class="q-mx-lg" color="primary" label="Ver sanción" icon="visibility" />
               <q-btn
+                v-if="sancion?.sancion_file == null"
                 class="q-mx-lg"
                 color="primary"
                 label="Imprimir acta de sanción"
@@ -216,11 +217,20 @@
                 icon="description"
               />
               <q-btn
+                v-if="sancion?.sancion_file == null"
                 class="q-mx-lg"
                 color="primary"
                 label="Adjuntar acta de sanción"
                 @click="showModalUpload = true"
                 icon="attach_file"
+              />
+              <q-btn
+                v-if="sancion?.sancion_file != null"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a seguridad"
+                @click="getPdf"
+                icon="send"
               />
             </q-card-section>
           </q-card>
@@ -295,7 +305,12 @@
     </div>
   </div>
 
-  <UploadFileModal v-model="showModalUpload" :sancionId="sancion.id" v-if="sancion" />
+  <UploadFileModal
+    v-model="showModalUpload"
+    @upload-success="actualizarInfo"
+    :sancionId="sancion.id"
+    v-if="sancion"
+  />
 </template>
 
 <script setup lang="ts">
@@ -429,6 +444,10 @@ async function getPdf() {
     const blobUrl = URL.createObjectURL(blob);
     window.open(blobUrl);
   }
+}
+
+function actualizarInfo() {
+  sancion.value = JSON.parse(localStorage.getItem('sanciones') || '{}');
 }
 </script>
 <style scoped></style>

@@ -60,6 +60,20 @@ export class BaseService {
     }
   }
 
+  async patch<T>(url: string, data?: unknown): Promise<T | null> {
+    try {
+      const response = await this.api.patch<T>(url, data);
+      return response.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.handleError(error);
+      } else {
+        this.handleError(new Error('Unknown error occurred'));
+      }
+      return null;
+    }
+  }
+
   async delete<T>(url: string): Promise<T | null> {
     try {
       const response = await this.api.delete<T>(url);

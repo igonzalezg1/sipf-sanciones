@@ -11,4 +11,9 @@ export class SancionesService extends BaseService {
   async generarPdf(id?: number): Promise<{ base64Pdf: string } | null> {
     return this.get(`${this.baseUrl}/${id}/pdf`);
   }
+
+  async mandarSeguridad(id?: number): Promise<unknown> {
+    const payload = {};
+    return this.patch(`${this.baseUrl}/${id}/mandar-seguridad`, payload);
+  }
 }
