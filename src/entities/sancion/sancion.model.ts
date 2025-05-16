@@ -5,8 +5,11 @@ export interface Sancion {
 export interface SancionData {
   id: number;
   tipo_sancion_id: number;
+  folio: string;
   tipo_sancion_nombre: string;
   tipo_sancion_descripcion: string;
+  tipo_sancion: { label: string; value: number };
+  descripcion: string;
   sancion_file: string;
   sancion_file_nombre: string;
   sancion_file_url: string;
@@ -20,6 +23,7 @@ export interface SancionData {
   pasaron_tres_dias_sancion: boolean;
   etapa_sancion: string;
   estatus_sancion: string;
+  puede_mandar_seguridad: boolean;
 }
 
 export interface SancionCreate {

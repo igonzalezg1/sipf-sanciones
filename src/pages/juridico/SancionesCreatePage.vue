@@ -198,6 +198,14 @@
   </div>
   <div class="row" v-if="sancion">
     <div class="col-12">
+      <p class="tw-text-2xl">SANCION</p>
+      <p class="tw-text-md">Fecha sesión de comite técnico: {{ sancion.fecha_registro }}</p>
+      <p class="tw-text-md">Folio de sanción: {{ sancion.folio }}</p>
+      <p class="tw-text-md">Tipo de sanción: {{ sancion.tipo_sancion.label }}</p>
+      <p class="tw-text-md">Etapa de la sanción: {{ sancion.etapa_sancion }}</p>
+      <p class="tw-text-md">Estatus de la sanción: {{ sancion.estatus_sancion }}</p>
+    </div>
+    <div class="col-12">
       <q-stepper v-model="step" vertical color="primary" animated>
         <q-step :name="1" title="OPCIONES DE SANCION" icon="settings" :done="step > 1">
           <q-card>
@@ -206,35 +214,37 @@
                 >Sanción</q-toolbar-title
               >
             </q-card-header>
-            <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sanción" icon="visibility" />
+            <q-card-section class="q-pa-md text-center">
+              <q-btn class="q-ma-sm" color="primary" label="Ver sanción" icon="visibility" />
+              <q-btn class="q-ma-sm" color="primary" label="Editar sanción" icon="edit_document" />
+              <q-btn class="q-ma-sm" color="primary" label="Suspender sanción" icon="stop_circle" />
               <q-btn
-                v-if="sancion?.sancion_file == null"
-                class="q-mx-lg"
+                v-if="eneableDownloadDocument(sancion)"
+                class="q-ma-sm"
                 color="primary"
                 label="Imprimir acta de sanción"
                 @click="getPdf"
                 icon="description"
               />
               <q-btn
-                v-if="sancion?.sancion_file == null"
-                class="q-mx-lg"
+                v-if="eneableDownloadDocument(sancion)"
+                class="q-ma-sm"
                 color="primary"
                 label="Adjuntar acta de sanción"
                 @click="showModalUpload = true"
                 icon="attach_file"
               />
               <q-btn
-                v-if="sancion?.sancion_file != null"
-                class="q-mx-lg"
+                v-if="eneableShowDocument(sancion)"
+                class="q-ma-sm"
                 color="primary"
                 label="Ver acta de sanción"
                 @click="getPdfUploaded"
                 icon="file_present"
               />
               <q-btn
-                v-if="sancion?.sancion_file != null"
-                class="q-mx-lg"
+                v-if="eneableSendSecurity(sancion)"
+                class="q-ma-sm"
                 color="primary"
                 label="Enviar a seguridad"
                 @click="mandarSeguridad"
@@ -335,7 +345,12 @@ import { useQuasar } from 'quasar';
 import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
 import type { SancionData, SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
 // Helpers
-import { eneableControversia } from 'src/app/helpers/sanciones/validaciones';
+import {
+  eneableControversia,
+  eneableDownloadDocument,
+  eneableShowDocument,
+  eneableSendSecurity,
+} from 'src/app/helpers/sanciones/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
 import UploadFileModal from './UploadFileModal.vue';
@@ -506,8 +521,9 @@ function getPdfUploaded(): void {
 async function mandarSeguridad(): Promise<void> {
   const response = await sancionesService.mandarSeguridad(sancion.value?.id);
   if (response) {
-    localStorage.setItem('sanciones', JSON.stringify(response));
-    actualizarInfo();
+    await router.push({
+      path: '/sanciones-juridico',
+    });
     $q.notify({
       type: 'positive',
       message: 'Sanción enviada a seguridad correctamente',

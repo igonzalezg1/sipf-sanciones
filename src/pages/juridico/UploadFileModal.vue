@@ -4,8 +4,8 @@
     @update:model-value="$emit('update:modelValue', $event)"
     persistent
   >
-    <q-card style="min-width: 400px">
-      <q-card-section>
+    <q-card style="width: 700px">
+      <q-card-section class="bg-primary text-white text-center tw-shadow-lg">
         <div class="text-h6">Subir acta de sanción</div>
       </q-card-section>
 
@@ -13,10 +13,17 @@
         <div class="q-mb-md">
           <q-input
             filled
-            v-model="sancion"
-            label="Acta de sanción"
+            label="Tipo de Sanción"
             readonly
-            hint="El acta de sanción se subirá como un archivo PDF."
+            v-model="sancion.descripcion"
+            class="q-my-md"
+          />
+          <q-input
+            filled
+            label="Descripción de sanción"
+            readonly
+            v-model="sancion.tipo_sancion.label"
+            class="q-my-md"
           />
         </div>
         <q-uploader
@@ -34,6 +41,7 @@
           :auto-upload="false"
           field-name="sancion_file"
           :form-fields="formFields"
+          class="q-mt-md tw-w-full"
         />
       </q-card-section>
 
@@ -57,7 +65,7 @@ const props = defineProps({
   sancionId: { type: Number, required: true },
 });
 
-const sancion = localStorage.getItem('sanciones');
+const sancion = JSON.parse(localStorage.getItem('sanciones') ?? '{}');
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
