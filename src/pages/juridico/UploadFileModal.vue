@@ -10,6 +10,15 @@
       </q-card-section>
 
       <q-card-section>
+        <div class="q-mb-md">
+          <q-input
+            filled
+            v-model="sancion"
+            label="Acta de sanción"
+            readonly
+            hint="El acta de sanción se subirá como un archivo PDF."
+          />
+        </div>
         <q-uploader
           :url="uploadUrl"
           method="POST"
@@ -47,6 +56,8 @@ const props = defineProps({
   modelValue: { type: Boolean, required: true },
   sancionId: { type: Number, required: true },
 });
+
+const sancion = localStorage.getItem('sanciones');
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;

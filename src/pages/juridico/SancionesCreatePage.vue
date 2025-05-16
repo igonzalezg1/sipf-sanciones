@@ -244,15 +244,20 @@
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 2" color="primary" label="Continuar" />
+            <q-btn
+              @click="step = 2"
+              color="primary"
+              label="Continuar"
+              v-if="eneableControversia(sancion)"
+            />
           </q-stepper-navigation>
         </q-step>
 
         <q-step
           :name="2"
           title="OPCIONES CONTROVERSIA"
-          caption="Optional"
           icon="create_new_folder"
+          v-if="eneableControversia(sancion)"
           :done="step > 2"
         >
           <q-card>
@@ -324,15 +329,21 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import type { SancionData, SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
-import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
-import { SancionesService } from 'src/app/services/sanciones/sancionesService';
-import { useIncidenciaStore } from 'stores/incidencias';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+// Modelos
 import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
+import type { SancionData, SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
+// Helpers
+import { eneableControversia } from 'src/app/helpers/sanciones/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
+// Componentes
 import UploadFileModal from './UploadFileModal.vue';
+// Servicios
+import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
+import { SancionesService } from 'src/app/services/sanciones/sancionesService';
+// Stores
+import { useIncidenciaStore } from 'stores/incidencias';
 
 // Stores
 const incidenciaStore = useIncidenciaStore();
@@ -342,6 +353,8 @@ const tiposSancionService = new CatalogsService();
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
+// Variables de modales
+const showModalUpload = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -350,8 +363,6 @@ const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const involucradosSelected = ref<SancionInvolucrado[]>([]);
 const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
-// Variables de modales
-const showModalUpload = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -372,7 +383,9 @@ const dataForm = ref<SancionCreate>({
 
 const selected = ref<Record<number, boolean>>({});
 
-onMounted(async () => {
+// Funciones
+// Funcion de inicio
+onMounted(async (): Promise<void> => {
   if (incidencia.value.sanciones) {
     sancion.value = incidencia.value.sanciones.data[0];
   }
@@ -390,7 +403,7 @@ onMounted(async () => {
     }));
   }
 });
-
+// Watchers
 watch(
   () => Number(dataForm.value.dias_sancion),
   (newValue: number) => {
@@ -404,7 +417,13 @@ watch(
   },
 );
 
-function handleCheckboxChange(id: number, checked: boolean) {
+/**
+ * Funcion para obtener el id de la sancion
+ * @param id
+ * @param checked
+ * @returns
+ */
+function handleCheckboxChange(id: number, checked: boolean): void {
   if (checked) {
     selected.value[id] = true;
   } else {
@@ -412,7 +431,11 @@ function handleCheckboxChange(id: number, checked: boolean) {
   }
 }
 
-async function guardarSancion() {
+/**
+ * Funcion para guardar la sancion
+ * @returns
+ */
+async function guardarSancion(): Promise<void> {
   const payload = dataForm.value;
   payload.centro_id = incidencia.value.centro_id;
 
@@ -443,7 +466,11 @@ async function guardarSancion() {
   console.log('Guardar sanción', response);
 }
 
-async function getPdf() {
+/**
+ * Funcion para obtener el pdf de la sancion
+ * @returns
+ */
+async function getPdf(): Promise<void> {
   const response = await sancionesService.generarPdf(sancion.value?.id);
   if (response) {
     const base_ = response.base64Pdf;
@@ -454,24 +481,38 @@ async function getPdf() {
   }
 }
 
-function getPdfUploaded() {
+/**
+ * Funcion para obtener el pdf de la sancion
+ * @returns
+ */
+function actualizarInfo(): void {
+  sancion.value = JSON.parse(localStorage.getItem('sanciones') || '{}');
+}
+
+/**
+ * Funcion para obtener el pdf de la sancion
+ * @returns
+ */
+function getPdfUploaded(): void {
   const fileUrl = `${import.meta.env.VITE_API_STORAGE_URL}${sancion.value?.sancion_file}`;
   console.log('fileUrl', fileUrl);
   window.open(fileUrl, '_blank');
 }
 
-async function mandarSeguridad() {
+/**
+ * Funcion para enviar la sancion a seguridad
+ * @returns
+ */
+async function mandarSeguridad(): Promise<void> {
   const response = await sancionesService.mandarSeguridad(sancion.value?.id);
   if (response) {
+    localStorage.setItem('sanciones', JSON.stringify(response));
+    actualizarInfo();
     $q.notify({
       type: 'positive',
       message: 'Sanción enviada a seguridad correctamente',
     });
   }
-}
-
-function actualizarInfo() {
-  sancion.value = JSON.parse(localStorage.getItem('sanciones') || '{}');
 }
 </script>
 <style scoped></style>

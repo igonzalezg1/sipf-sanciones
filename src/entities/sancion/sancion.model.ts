@@ -17,6 +17,9 @@ export interface SancionData {
   fecha_hora_registro_input: string;
   fecha_registro: string;
   hora_registro: string;
+  pasaron_tres_dias_sancion: boolean;
+  etapa_sancion: string;
+  estatus_sancion: string;
 }
 
 export interface SancionCreate {

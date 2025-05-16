@@ -117,12 +117,15 @@
 <script setup lang="ts">
 // Imports
 import { ref, onMounted } from 'vue';
-import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
 import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+// Stores
 import { useSessionStore } from 'stores/session';
 import { useIncidenciaStore } from 'stores/incidencias';
+// Modelos
 import type { Incidencia } from 'entities/incidente/incidente.model';
-import { useRouter } from 'vue-router';
+// Servicios
+import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
 
 // Variables
 const isLoading = ref(true);
