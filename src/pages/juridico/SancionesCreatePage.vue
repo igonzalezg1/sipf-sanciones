@@ -288,11 +288,11 @@
           </q-stepper-navigation>
         </q-step>
 
-        <q-step :name="4" title="OPCIONES APELACION" icon="add_comment">
+        <q-step :name="4" title="OPCIONES APELACION DE LA CONTROVERSIA" icon="add_comment">
           <q-card>
             <q-card-header>
               <q-toolbar-title class="text-h6 text-center bg-primary text-white"
-                >APELACION</q-toolbar-title
+                >APELACION DE LA CONTROVERSIA</q-toolbar-title
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
@@ -320,7 +320,6 @@
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn color="primary" label="Finalizar" />
             <q-btn flat @click="step = 4" color="primary" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
