@@ -51,69 +51,97 @@
         </div>
         <div class="row tw-uppercase">
           <div class="col-6">
-            <q-select
-              filled
+            <select-custom
               v-model="dataForm.tipo_sancion_id"
               :options="tiposSancion"
               label="Tipo de sanción"
-              emit-value
-              map-options
+              clearable
               class="q-ma-md"
-            />
-            <q-input
-              filled
+            >
+              <template #prepend>
+                <q-icon name="gavel" />
+              </template>
+            </select-custom>
+            <input-text
               v-model="dataForm.fecha_registro"
               label="Fecha sesión de comite técnico"
+              clearable
               type="date"
               class="q-ma-md"
-            />
-            <q-input
-              filled
+            >
+              <template #prepend>
+                <q-icon name="calendar_month" />
+              </template>
+            </input-text>
+            <input-text
               v-model="dataForm.fecha_hora_inicio_sancion"
               label="Fecha inicio de sanción"
+              clearable
               type="date"
-              readonly
               class="q-ma-md"
-            />
-            <q-input
-              filled
+              readonly
+            >
+              <template #prepend>
+                <q-icon name="calendar_month" />
+              </template>
+            </input-text>
+            <input-text
               v-model="dataForm.observaciones"
               label="Observaciones de la sanción"
+              clearable
               type="textarea"
-              class="q-ma-md tw-uppercase"
-            />
+              class="q-ma-md"
+            >
+              <template #prepend>
+                <q-icon name="visibility" />
+              </template>
+            </input-text>
           </div>
           <div class="col-6">
-            <q-input
-              filled
+            <input-text
               v-model="dataForm.no_sesion_comite"
               label="No de sesión de comite técnico"
+              clearable
               type="text"
               class="q-ma-md"
-            />
-            <q-input
-              filled
+            >
+              <template #prepend>
+                <q-icon name="groups" />
+              </template>
+            </input-text>
+            <input-text
               v-model="dataForm.dias_sancion"
               label="Días de sanción"
+              clearable
               type="number"
               class="q-ma-md"
-            />
-
-            <q-input
-              filled
+            >
+              <template #prepend>
+                <q-icon name="lock" />
+              </template>
+            </input-text>
+            <input-text
               v-model="dataForm.fecha_hora_fin_sancion"
-              readonly
               label="Fecha fin de sanción"
+              readonly
               type="date"
               class="q-ma-md"
-            />
-            <q-input
-              filled
+            >
+              <template #prepend>
+                <q-icon name="calendar_month" />
+              </template>
+            </input-text>
+            <input-text
               v-model="dataForm.descripcion"
               label="Descripción de la sanción"
+              clearable
               type="textarea"
-              class="q-ma-md tw-uppercase"
-            />
+              class="q-ma-md"
+            >
+              <template #prepend>
+                <q-icon name="chat" />
+              </template>
+            </input-text>
           </div>
         </div>
         <div class="row tw-uppercase">
@@ -147,40 +175,44 @@
         </div>
         <div class="row tw-uppercase">
           <div class="col-3">
-            <q-input
-              filled
+            <input-text
               v-model="dataForm.firmante_1_nombre"
               label="Nombre del firmante 1"
+              clearable
               type="text"
-              class="q-ma-sm"
-            />
+              class="q-ma-md"
+            >
+            </input-text>
           </div>
           <div class="col-3">
-            <q-input
-              filled
+            <input-text
               v-model="dataForm.firmante_1_cargo"
               label="Cargo del firmante 1"
+              clearable
               type="text"
-              class="q-ma-sm"
-            />
+              class="q-ma-md"
+            >
+            </input-text>
           </div>
           <div class="col-3">
-            <q-input
-              filled
+            <input-text
               v-model="dataForm.firmante_2_nombre"
               label="Nombre del firmante 2"
+              clearable
               type="text"
-              class="q-ma-sm"
-            />
+              class="q-ma-md"
+            >
+            </input-text>
           </div>
           <div class="col-3">
-            <q-input
-              filled
+            <input-text
               v-model="dataForm.firmante_2_cargo"
               label="Cargo del firmante 2"
+              clearable
               type="text"
-              class="q-ma-sm"
-            />
+              class="q-ma-md"
+            >
+            </input-text>
           </div>
         </div>
       </form>
@@ -277,7 +309,13 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
+              <q-btn
+                class="q-mx-lg"
+                color="primary"
+                label="agregar controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
               <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
             </q-card-section>
           </q-card>
@@ -333,6 +371,7 @@
     :sancionId="sancion.id"
     v-if="sancion"
   />
+  <AgregarControversiaModal v-model="controversiaCreateModal" />
 </template>
 
 <script setup lang="ts">
@@ -353,12 +392,14 @@ import {
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
 import UploadFileModal from './UploadFileModal.vue';
+import AgregarControversiaModal from './AgregarControversiaModal.vue';
+import InputText from 'src/shared/ui/InputText.vue';
+import SelectCustom from 'src/shared/ui/SelectCustom.vue';
 // Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
-
 // Stores
 const incidenciaStore = useIncidenciaStore();
 // Services
@@ -369,6 +410,7 @@ const route = useRoute();
 const $q = useQuasar();
 // Variables de modales
 const showModalUpload = ref(false);
+const controversiaCreateModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -528,6 +570,11 @@ async function mandarSeguridad(): Promise<void> {
       message: 'Sanción enviada a seguridad correctamente',
     });
   }
+}
+
+function agregarControversia() {
+  console.log('Controversia');
+  controversiaCreateModal.value = true;
 }
 </script>
 <style scoped></style>

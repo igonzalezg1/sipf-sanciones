@@ -1,9 +1,9 @@
 <template>
-  <q-input
+  <q-select
     outlined
-    v-bind="inputProps"
+    v-bind="selectProps"
     v-model="model"
-    :type="type"
+    :options="options"
     :label="label"
     :dense="dense"
     :filled="filled"
@@ -12,12 +12,12 @@
     :placeholder="placeholder"
     :autofocus="autofocus"
     :rules="rules"
-    :mask="mask"
-    :suffix="suffix"
     :hint="hint"
     :clearable="clearable"
-    :debounce="debounce"
-    class="tw-shadow-lg tw-rounded-lg tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 focus:tw-ring-2 focus:tw-ring-primary focus:tw-border-primary tw-transition-all tw-duration-150"
+    use-input
+    emit-value
+    map-options
+    class="tw-shadow-md tw-rounded-lg tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 focus:tw-ring-2 focus:tw-ring-primary focus:tw-border-primary tw-transition-all tw-duration-150"
   >
     <template v-if="$slots.prepend" #prepend>
       <slot name="prepend" />
@@ -34,29 +34,17 @@
     <template v-if="$slots.hint" #hint>
       <slot name="hint" />
     </template>
-  </q-input>
+  </q-select>
 </template>
 
 <script setup lang="ts">
 import { computed, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
-  modelValue: [String, Number, null],
-  type: {
-    type: String as () =>
-      | 'text'
-      | 'number'
-      | 'password'
-      | 'textarea'
-      | 'email'
-      | 'search'
-      | 'tel'
-      | 'file'
-      | 'url'
-      | 'time'
-      | 'date'
-      | 'datetime-local',
-    default: 'text',
+  modelValue: [String, Number, Object, null],
+  options: {
+    type: Array as () => Array<unknown>,
+    default: () => [],
   },
   label: String,
   dense: {
@@ -69,12 +57,9 @@ const props = defineProps({
   placeholder: String,
   autofocus: Boolean,
   rules: Array as unknown as () => Array<(val: unknown) => boolean | string>,
-  mask: String,
-  suffix: String,
   hint: String,
   clearable: Boolean,
-  debounce: Number,
-  inputProps: Object,
+  selectProps: Object,
 });
 
 const emits = defineEmits(['update:modelValue']);
