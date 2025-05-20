@@ -3,10 +3,13 @@
     <HeaderComponent :titulo="titulo" />
     <q-page-container>
       <div class="row">
-        <div class="col-2" v-if="isPPL">
+        <div class="col-2 q-gutter-y-md q-mt-md q-pa-md" v-show="isPPL">
           <PPLCardComponent />
         </div>
         <div :class="isPPL ? 'col-10' : 'col-12'">
+          <div class="column q-gutter-y-md q-mt-md q-pa-md">
+            <AppNavigator />
+          </div>
           <BodyComponent />
         </div>
       </div>
@@ -20,6 +23,7 @@ import { computed } from 'vue';
 import HeaderComponent from 'src/shared/ui/layout/HeaderComponent.vue';
 import PPLCardComponent from 'src/shared/ui/layout/PPLCardComponent.vue';
 import BodyComponent from 'src/shared/ui/layout/BodyComponent.vue';
+import AppNavigator from 'src/shared/ui/layout/AppNavigator.vue';
 import { ref } from 'vue';
 
 const route = useRoute();
