@@ -97,3 +97,14 @@ export function eneableSendSecurity(sancion: SancionData): boolean {
 
   return isSendSecurity;
 }
+
+export function eneableEditSancion(sancion: SancionData): boolean {
+  const incidenciaStore = useIncidenciaStore();
+  const incidencia = incidenciaStore.getIncidencia();
+  if (!sancion || !incidencia) return false;
+
+  const noFile = !sancion.sancion_file;
+  const notAttended = incidencia.atendido == 0;
+  // return noFile && notAttended && isJuridicoPath && (canEditByConsejo || canEditByJuridico);
+  return noFile && notAttended;
+}

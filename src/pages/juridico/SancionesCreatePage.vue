@@ -247,9 +247,39 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md text-center">
-              <q-btn class="q-ma-sm" color="primary" label="Ver sanción" icon="visibility" />
-              <q-btn class="q-ma-sm" color="primary" label="Editar sanción" icon="edit_document" />
-              <q-btn class="q-ma-sm" color="primary" label="Suspender sanción" icon="stop_circle" />
+              <q-btn
+                class="q-ma-sm"
+                color="primary"
+                label="Ver sanción"
+                v-if="!eneableEditSancion(sancion)"
+                @click="
+                  () => {
+                    isReadonly = true;
+                    showEdiModal = true;
+                  }
+                "
+                icon="visibility"
+              />
+              <q-btn
+                class="q-ma-sm"
+                color="primary"
+                label="Editar sanción"
+                v-if="eneableEditSancion(sancion)"
+                @click="
+                  () => {
+                    isReadonly = false;
+                    showEdiModal = true;
+                  }
+                "
+                icon="edit_document"
+              />
+              <q-btn
+                class="q-ma-sm"
+                color="primary"
+                v-if="!eneableEditSancion(sancion)"
+                label="Suspender sanción"
+                icon="stop_circle"
+              />
               <q-btn
                 v-if="eneableDownloadDocument(sancion)"
                 class="q-ma-sm"
@@ -371,12 +401,17 @@
     :sancionId="sancion.id"
     v-if="sancion"
   />
-  <AgregarControversiaModal v-model="controversiaCreateModal" />
+  <AgregarControversiaModal
+    v-model="controversiaCreateModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 // Modelos
@@ -388,6 +423,7 @@ import {
   eneableDownloadDocument,
   eneableShowDocument,
   eneableSendSecurity,
+  eneableEditSancion,
 } from 'src/app/helpers/sanciones/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
@@ -395,6 +431,7 @@ import UploadFileModal from './UploadFileModal.vue';
 import AgregarControversiaModal from './AgregarControversiaModal.vue';
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
+import ShowEditModal from './ShowEditModal.vue';
 // Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
@@ -406,11 +443,11 @@ const incidenciaStore = useIncidenciaStore();
 const sancionesService = new SancionesService();
 const tiposSancionService = new CatalogsService();
 const router = useRouter();
-const route = useRoute();
 const $q = useQuasar();
 // Variables de modales
 const showModalUpload = ref(false);
 const controversiaCreateModal = ref(false);
+const showEdiModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -419,6 +456,7 @@ const tiposSancionResponse = ref<TipoSancion[] | null>([]);
 const involucradosSelected = ref<SancionInvolucrado[]>([]);
 const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
+const isReadonly = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -444,11 +482,6 @@ const selected = ref<Record<number, boolean>>({});
 onMounted(async (): Promise<void> => {
   if (incidencia.value.sanciones) {
     sancion.value = incidencia.value.sanciones.data[0];
-  }
-  if (route.query.incidenciaId) {
-    sancionId.value = Number(route.query.incidenciaId);
-  } else {
-    sancionId.value = 0;
   }
 
   tiposSancionResponse.value = await tiposSancionService.getTiposSancion();
@@ -543,6 +576,7 @@ async function getPdf(): Promise<void> {
  */
 function actualizarInfo(): void {
   sancion.value = JSON.parse(localStorage.getItem('sanciones') || '{}');
+  incidencia.value = incidenciaStore.getIncidencia();
 }
 
 /**
@@ -573,7 +607,6 @@ async function mandarSeguridad(): Promise<void> {
 }
 
 function agregarControversia() {
-  console.log('Controversia');
   controversiaCreateModal.value = true;
 }
 </script>

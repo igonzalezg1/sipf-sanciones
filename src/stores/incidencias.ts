@@ -7,8 +7,11 @@ export const useIncidenciaStore = defineStore('incidencia', {
     incidencia_actual: null as Incidencia | null,
   }),
   actions: {
-    setIncidencia(incidencia: Incidencia) {
-      this.incidencia_actual = incidencia;
+    setIncidencia(incidencia: Incidencia | null) {
+      if (incidencia) {
+        this.incidencia_actual = incidencia;
+        localStorage.setItem('incidencia', JSON.stringify(incidencia));
+      }
     },
 
     getIncidencia() {
