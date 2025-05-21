@@ -88,7 +88,7 @@ onMounted(async () => {
   try {
     scope.value = {
       porCentro: 1,
-      rutaAccesso: 'tecnico-sanciones',
+      // rutaAccesso: 'tecnico-sanciones',
     };
     const include = `sanciones,involucrados_para_sancion`;
     const response = await service.getIncidencias(include, scope.value);
@@ -117,7 +117,7 @@ async function loadPage() {
     // TODO: Cambiar por el id del centro
     scope.value = {
       porCentro: 1,
-      rutaAccesso: 'tecnico-sanciones',
+      // rutaAccesso: 'tecnico-sanciones',
     };
     const include = `sanciones,involucrados_para_sancion`;
     const response = await service.getIncidencias(include, scope.value);

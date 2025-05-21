@@ -6,3 +6,23 @@ export interface ControversiaCreate {
   observaciones: string | null;
   controversia_file: string | null;
 }
+
+export interface Controversia {
+  en_comite: number | null;
+  fecha_fin_real_sancion: string | null;
+  fecha_fin_sancion: string | null;
+  fecha_inicio_sancion: string | null;
+  fecha_resolucion: string | null;
+  fecha_solicitud: string | null;
+  fecha_suspencion: string | null;
+  file_name: string | null;
+  file_name_resoluccion: string | null;
+  file_path: string | null;
+  file_path_resolucion: string | null;
+  no_sesion_comite: string | null;
+  observaciones: string | null;
+  observaciones_resolucion: string | null;
+  organo_jurisdiccional: string | null;
+  tipo_sancion: string | null;
+  id: number | null;
+}

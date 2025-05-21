@@ -148,7 +148,7 @@ onMounted(async () => {
     console.log('sessionStore', sessionStore.expediente?.id);
     scope.value = {
       porExpedienteEnviado: sessionStore.expediente?.id,
-      rutaAccesso: 'juridico-sanciones',
+      // rutaAccesso: 'juridico-sanciones',
     };
     const include = 'sanciones,involucrados_para_sancion';
     // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;
@@ -177,7 +177,7 @@ async function loadPage() {
   try {
     scope.value = {
       porExpedienteEnviado: sessionStore.expediente?.id,
-      rutaAccesso: 'juridico-sanciones',
+      // rutaAccesso: 'juridico-sanciones',
     };
     const include = 'sanciones,involucrados_para_sancion';
     // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;

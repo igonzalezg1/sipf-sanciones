@@ -1,3 +1,5 @@
+import type { Controversia } from 'entities/controversia/controversia.model';
+
 export interface Sancion {
   data: SancionData[];
 }
@@ -24,6 +26,9 @@ export interface SancionData {
   etapa_sancion: string;
   estatus_sancion: string;
   puede_mandar_seguridad: boolean;
+  resolucion_controversia_guardada: boolean;
+  resolucion_apelacion_guardada: boolean;
+  controversia: Controversia;
 }
 
 export interface SancionCreate {

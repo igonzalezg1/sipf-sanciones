@@ -339,19 +339,85 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
+              <!-- Solicitud de controversia -->
               <q-btn
+                v-if="puedeAgregarControversia(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="agregar controversia"
                 icon="visibility"
                 @click="agregarControversia"
               />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <q-btn
+                v-if="puedeEditarControversia(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar solicitud de controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+
+              <q-btn
+                v-if="puedeVerControversia(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar solicitud de controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+
+              <q-btn
+                v-if="puedeMandarComite(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a comité técnico"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+              <!-- Resolucion de controversia -->
+              <q-btn
+                v-if="puedeAgregarResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Agregar resolución de controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+              <q-btn
+                v-if="puedeEditarResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar resolución de controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+              <q-btn
+                v-if="puedeVerResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar resolución de controversia"
+                icon="visibility"
+                @click="agregarControversia"
+              />
+
+              <q-btn
+                v-if="puedeMandarSeguridad(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a seguridad"
+                icon="visibility"
+                @click="agregarControversia"
+              />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 4" color="primary" label="Continuar" />
+            <q-btn
+              @click="step = 4"
+              color="primary"
+              label="Continuar"
+              v-if="puedeVerResolucion(sancion)"
+            />
             <q-btn flat @click="step = 1" color="primary" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
@@ -425,6 +491,16 @@ import {
   eneableSendSecurity,
   eneableEditSancion,
 } from 'src/app/helpers/sanciones/validaciones';
+import {
+  puedeAgregarControversia,
+  puedeEditarControversia,
+  puedeVerControversia,
+  puedeMandarComite,
+  puedeAgregarResolucion,
+  puedeEditarResolucion,
+  puedeVerResolucion,
+  puedeMandarSeguridad,
+} from 'src/app/helpers/controversia/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
 import UploadFileModal from './UploadFileModal.vue';
@@ -491,6 +567,8 @@ onMounted(async (): Promise<void> => {
       value: tipo.id,
     }));
   }
+
+  console.log('Incidencia', incidencia.value);
 });
 // Watchers
 watch(
@@ -552,7 +630,6 @@ async function guardarSancion(): Promise<void> {
       path: '/sanciones-juridico',
     });
   }
-  console.log('Guardar sanción', response);
 }
 
 /**
@@ -585,7 +662,6 @@ function actualizarInfo(): void {
  */
 function getPdfUploaded(): void {
   const fileUrl = `${import.meta.env.VITE_API_STORAGE_URL}${sancion.value?.sancion_file}`;
-  console.log('fileUrl', fileUrl);
   window.open(fileUrl, '_blank');
 }
 
