@@ -430,8 +430,75 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <!-- solicitud de apelacion -->
+              <q-btn
+                v-if="puedeAgregarControversia(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="agregar apelacion"
+                icon="playlist_add"
+                @click="agregarControversia"
+              />
+              <q-btn
+                v-if="puedeEditarControversia(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar solicitud de apelacion"
+                icon="visibility"
+                @click="editarControversia"
+              />
+
+              <q-btn
+                v-if="puedeVerControversia(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar solicitud de apelacion"
+                icon="visibility"
+                @click="verControversia"
+              />
+
+              <q-btn
+                v-if="puedeMandarComite(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a comité técnico"
+                icon="visibility"
+                @click="enviarComiteTecnico"
+              />
+              <!-- Resolucion de apelacion -->
+              <q-btn
+                v-if="puedeAgregarResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Agregar resolución de apelacion"
+                icon="playlist_add"
+                @click="agregarResolucionControversia"
+              />
+              <q-btn
+                v-if="puedeEditarResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar resolución de apelacion"
+                icon="visibility"
+                @click="editResolucionControversia"
+              />
+              <q-btn
+                v-if="puedeVerResolucion(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar resolución de apelacion"
+                icon="visibility"
+                @click="verResolucionControversia"
+              />
+
+              <q-btn
+                v-if="puedeMandarSeguridad(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a seguridad"
+                icon="visibility"
+                @click="enviarSeguridadControversia"
+              />
             </q-card-section>
           </q-card>
 
