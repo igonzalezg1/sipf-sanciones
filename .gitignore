@@ -28,7 +28,22 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+/.fleet
+/.idea
+/.vscode
 
 # local .env files
 .env.local*
 .env
+
+node_modules
+public/build
+public/hot
+public/storage
+storage/*.key
+vendor
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+dist
