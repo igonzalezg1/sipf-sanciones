@@ -1,3 +1,4 @@
+// src/entities/user/user.model.ts
 export interface CentroUser {
   id: number;
   name: string;
