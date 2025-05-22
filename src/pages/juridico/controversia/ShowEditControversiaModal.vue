@@ -1,12 +1,12 @@
 <template>
   <q-dialog
-    :model-value="props.modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
+    :model-value="props.controversiaEditModal"
+    @update:model-value="$emit('update:controversiaEditModal', $event)"
     persistent
   >
     <q-card>
       <q-card-section class="bg-primary text-white text-center tw-shadow-lg">
-        <div class="text-h6">Agregar controversia.</div>
+        <div class="text-h6">Editar controversia.</div>
       </q-card-section>
       <q-card-section class="q-py-md">
         <div class="text-h6">Incidencia: {{ incidencia?.folio }}</div>
@@ -75,7 +75,7 @@
                 { label: 'Durante la sanción', value: 'durante' },
                 { label: 'Después de la sanción', value: 'despues' },
               ]"
-              label="Tipo de sanción"
+              label="cuando aplica la controversia"
               clearable
               class="q-ma-md"
             >
@@ -198,11 +198,12 @@ import { ControversiaService } from 'src/app/services/sanciones/controversiaServ
 
 // Variables
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:controversiaEditModal', value: boolean): void;
   (e: 'upload-success'): void;
 }>();
 const props = defineProps({
-  modelValue: { type: Boolean, required: true },
+  controversiaEditModal: { type: Boolean, required: true },
+  isReadonlyControversia: { type: Boolean, required: true },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel
@@ -236,7 +237,7 @@ const formData = ref<ControversiaCreate>({
 // Funciones
 const closeModal = () => {
   localStorage.removeItem('archivo');
-  emit('update:modelValue', false);
+  emit('update:controversiaEditModal', false);
 };
 
 const checkFileType = (files: readonly File[]) => {

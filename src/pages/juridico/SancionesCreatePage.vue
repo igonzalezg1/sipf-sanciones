@@ -147,7 +147,7 @@
         <div class="row tw-uppercase">
           <div class="col-12">Involucrados</div>
           <table class="q-table">
-            <thead class="text-center bg-primary text-white">
+            <thead class="text-center text-white bg-primary">
               <tr>
                 <th>#</th>
                 <th>PPL</th>
@@ -242,11 +242,11 @@
         <q-step :name="1" title="OPCIONES DE SANCION" icon="settings" :done="step > 1">
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >Sanción</q-toolbar-title
               >
             </q-card-header>
-            <q-card-section class="q-pa-md text-center">
+            <q-card-section class="text-center q-pa-md">
               <q-btn
                 class="q-ma-sm"
                 color="primary"
@@ -334,7 +334,7 @@
         >
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >CONTROVERSIA</q-toolbar-title
               >
             </q-card-header>
@@ -345,7 +345,7 @@
                 class="q-mx-lg"
                 color="primary"
                 label="agregar controversia"
-                icon="visibility"
+                icon="playlist_add"
                 @click="agregarControversia"
               />
               <q-btn
@@ -372,7 +372,7 @@
                 color="primary"
                 label="Enviar a comité técnico"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="enviarComiteTecnico"
               />
               <!-- Resolucion de controversia -->
               <q-btn
@@ -380,8 +380,8 @@
                 class="q-mx-lg"
                 color="primary"
                 label="Agregar resolución de controversia"
-                icon="visibility"
-                @click="agregarControversia"
+                icon="playlist_add"
+                @click="agregarResolucionControversia"
               />
               <q-btn
                 v-if="puedeEditarResolucion(sancion)"
@@ -389,7 +389,7 @@
                 color="primary"
                 label="Editar resolución de controversia"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="editResolucionControversia"
               />
               <q-btn
                 v-if="puedeVerResolucion(sancion)"
@@ -397,7 +397,7 @@
                 color="primary"
                 label="Consultar resolución de controversia"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="verResolucionControversia"
               />
 
               <q-btn
@@ -406,7 +406,7 @@
                 color="primary"
                 label="Enviar a seguridad"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="enviarSeguridadControversia"
               />
             </q-card-section>
           </q-card>
@@ -425,7 +425,7 @@
         <q-step :name="4" title="OPCIONES APELACION DE LA CONTROVERSIA" icon="add_comment">
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >APELACION DE LA CONTROVERSIA</q-toolbar-title
               >
             </q-card-header>
@@ -443,7 +443,7 @@
         <q-step :name="5" title="OPCIONES AMPARO" icon="add_comment">
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >AMPARO</q-toolbar-title
               >
             </q-card-header>
@@ -474,6 +474,23 @@
   />
 
   <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
+  <showEditcontroversiaModal
+    :controversiaEditModal="controversiaEditModal"
+    :isReadonlyControversia="isReadonlyControversia"
+    @update:controversiaEditModal="controversiaEditModal = $event"
+    @upload-success="actualizarInfo"
+  />
+  <AgregarSolicitudControversiaModal
+    v-model="agregarResolucionControversiaM"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditControversiaResolucionModal
+    v-model="verditcontroversiaModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
 </template>
 
 <script setup lang="ts">
@@ -504,13 +521,17 @@ import {
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
 import UploadFileModal from './UploadFileModal.vue';
-import AgregarControversiaModal from './AgregarControversiaModal.vue';
+import AgregarControversiaModal from './controversia/AgregarControversiaModal.vue';
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
 import ShowEditModal from './ShowEditModal.vue';
+import showEditcontroversiaModal from './controversia/ShowEditControversiaModal.vue';
+import AgregarSolicitudControversiaModal from './controversia/AgregarResolucionControversiaModal.vue';
+import ShowEditControversiaResolucionModal from './controversia/ShowEditResolucionControversiaModal.vue';
 // Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
+import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 // Stores
@@ -518,6 +539,7 @@ const incidenciaStore = useIncidenciaStore();
 // Services
 const sancionesService = new SancionesService();
 const tiposSancionService = new CatalogsService();
+const controversiaService = new ControversiaService();
 const router = useRouter();
 const $q = useQuasar();
 // Variables de modales
@@ -525,6 +547,8 @@ const showModalUpload = ref(false);
 const controversiaCreateModal = ref(false);
 const showEdiModal = ref(false);
 const controversiaEditModal = ref(false);
+const agregarResolucionControversiaM = ref(false);
+const verditcontroversiaModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -535,6 +559,7 @@ const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
 const isReadonly = ref(false);
 const isReadonlyControversia = ref(false);
+const isReadonlyResolucionControversia = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -684,18 +709,62 @@ async function mandarSeguridad(): Promise<void> {
   }
 }
 
-function agregarControversia() {
+function agregarControversia(): void {
   controversiaCreateModal.value = true;
 }
 
-function editarControversia() {
+function editarControversia(): void {
   controversiaEditModal.value = true;
   isReadonlyControversia.value = false;
 }
 
-function verControversia() {
+function verControversia(): void {
   controversiaEditModal.value = true;
   isReadonlyControversia.value = true;
+}
+
+function agregarResolucionControversia(): void {
+  agregarResolucionControversiaM.value = true;
+}
+
+function editResolucionControversia(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+function verResolucionControversia(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+async function enviarComiteTecnico(): Promise<void> {
+  const response = await controversiaService.enviarComiteTecnico(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Sanción enviada a comité técnico correctamente',
+  });
+}
+
+async function enviarSeguridadControversia(): Promise<void> {
+  const response = await controversiaService.enviarSeguridad(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Controversia enviada a seguridad correctamente',
+  });
 }
 </script>
 <style scoped></style>

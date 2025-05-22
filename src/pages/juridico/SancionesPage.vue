@@ -145,7 +145,6 @@ const router = useRouter();
 // Funciones
 onMounted(async () => {
   try {
-    console.log('sessionStore', sessionStore.expediente?.id);
     scope.value = {
       porExpedienteEnviado: sessionStore.expediente?.id,
       // rutaAccesso: 'juridico-sanciones',
@@ -202,10 +201,9 @@ async function sendNoVisto() {
   const ids = Object.keys(selected.value)
     .filter((key) => selected.value[Number(key)])
     .map(Number);
-  const response = await service.marcarNoVisto(ids);
+  await service.marcarNoVisto(ids);
   await loadPage();
   isLoading.value = false;
-  console.log(response);
 }
 
 async function enviarComite() {
@@ -213,10 +211,9 @@ async function enviarComite() {
   const ids = Object.keys(selected.value)
     .filter((key) => selected.value[Number(key)])
     .map(Number);
-  const response = await service.enviarComite(ids);
+  await service.enviarComite(ids);
   await loadPage();
   isLoading.value = false;
-  console.log(response);
 }
 
 function handleCheckboxChange(id: number, checked: boolean) {

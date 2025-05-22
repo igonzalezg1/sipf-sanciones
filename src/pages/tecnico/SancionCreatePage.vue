@@ -391,7 +391,6 @@ async function guardarSancion() {
       path: '/sanciones-juridico',
     });
   }
-  console.log('Guardar sanción', response);
 }
 </script>
 <style scoped></style>

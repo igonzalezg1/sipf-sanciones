@@ -235,7 +235,7 @@
 
 <script setup lang="ts">
 // Imports
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 // Servicios

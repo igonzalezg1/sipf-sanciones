@@ -48,7 +48,7 @@ export function puedeAgregarResolucion(sancion: SancionData): boolean {
   const tiene_resolucion = !incidencia.sanciones.data[0].resolucion_apelacion_guardada;
   return (
     esComite(incidencia) &&
-    tieneResolucion(incidencia) &&
+    !tieneResolucion(incidencia) &&
     tiene_resolucion &&
     agregaSolicitud(incidencia) &&
     !esSuspendida(sancion)
@@ -97,7 +97,6 @@ function esSuspendida(sancion: SancionData): boolean {
 function esComite(incidencia: Incidencia): boolean {
   let isReturn = false;
   const sancion = incidencia.sanciones?.data?.[0];
-
   if (sancion?.resolucion_controversia_guardada) {
     const controversia = sancion.controversia;
     if (controversia && typeof controversia.en_comite === 'number' && controversia.en_comite >= 1) {

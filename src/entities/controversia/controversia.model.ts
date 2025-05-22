@@ -26,3 +26,13 @@ export interface Controversia {
   tipo_sancion: string | null;
   id: number | null;
 }
+
+export interface ControversiaResolucionCreate {
+  fecha_resolucion: string | null;
+  fecha_inicio_sancion: string | null;
+  fecha_fin_sancion: string | null;
+  fecha_suspencion: string | null;
+  observaciones_resolucion: string | null;
+  resolucion_juez: string | null;
+  controversia_resolucion_file: string | null;
+}
