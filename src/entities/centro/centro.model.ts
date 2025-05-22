@@ -1,3 +1,6 @@
+/**
+ * Representa un centro penitenciario o unidad de internamiento.
+ */
 export interface Centro {
   id: number;
   nombre_centro: string;
