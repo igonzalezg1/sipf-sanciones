@@ -354,7 +354,7 @@
                 color="primary"
                 label="Editar solicitud de controversia"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="editarControversia"
               />
 
               <q-btn
@@ -363,7 +363,7 @@
                 color="primary"
                 label="Consultar solicitud de controversia"
                 icon="visibility"
-                @click="agregarControversia"
+                @click="verControversia"
               />
 
               <q-btn
@@ -524,6 +524,7 @@ const $q = useQuasar();
 const showModalUpload = ref(false);
 const controversiaCreateModal = ref(false);
 const showEdiModal = ref(false);
+const controversiaEditModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -533,6 +534,7 @@ const involucradosSelected = ref<SancionInvolucrado[]>([]);
 const sancion = ref<SancionData | null>(null);
 const tiposSancion = ref<object[]>([]);
 const isReadonly = ref(false);
+const isReadonlyControversia = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -684,6 +686,16 @@ async function mandarSeguridad(): Promise<void> {
 
 function agregarControversia() {
   controversiaCreateModal.value = true;
+}
+
+function editarControversia() {
+  controversiaEditModal.value = true;
+  isReadonlyControversia.value = false;
+}
+
+function verControversia() {
+  controversiaEditModal.value = true;
+  isReadonlyControversia.value = true;
 }
 </script>
 <style scoped></style>

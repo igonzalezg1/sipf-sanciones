@@ -148,12 +148,25 @@
               @rejected="onRejected"
               @uploaded="onUploaded"
               @failed="onUploadFailed"
+              @added="onFileAdded"
               label="Agregar controversia (máx. 10MB)"
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
               class="q-mx-md tw-w-full"
             />
+            <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
+              <q-card-section>
+                <div class="text-subtitle2 q-mb-sm">Vista previa del PDF</div>
+                <iframe :src="filePreviewUrl" width="100%" height="400px"></iframe>
+                <q-btn
+                  color="negative"
+                  label="Cerrar vista previa"
+                  @click="clearPreview"
+                  class="q-mt-sm"
+                />
+              </q-card-section>
+            </q-card>
           </q-form>
         </div>
       </q-card-section>
@@ -209,6 +222,7 @@ const uploadHeaders = [
   { name: 'Authorization', value: `Bearer ${token}` },
 ];
 const mostrarBanner = ref(true);
+const filePreviewUrl = ref<string | null>(null);
 
 const formData = ref<ControversiaCreate>({
   cuando_aplica: null,
@@ -310,4 +324,17 @@ const saveInfo = async () => {
     return;
   }
 };
+
+function onFileAdded(files: readonly File[]) {
+  if (files.length && files[0]?.type === 'application/pdf') {
+    filePreviewUrl.value = URL.createObjectURL(files[0]);
+  }
+}
+
+function clearPreview() {
+  if (filePreviewUrl.value) {
+    URL.revokeObjectURL(filePreviewUrl.value);
+    filePreviewUrl.value = null;
+  }
+}
 </script>
