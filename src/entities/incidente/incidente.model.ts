@@ -37,4 +37,6 @@ export interface Incidencia {
   sancion_sin_efecto: number;
   puede_enviar_todas: boolean;
   estatus: string;
+  usuario_asigna?: string;
+  descripcion_completa?: string;
 }
