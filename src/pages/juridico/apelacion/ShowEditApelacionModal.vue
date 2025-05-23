@@ -1,12 +1,12 @@
 <template>
   <q-dialog
-    :model-value="props.controversiaEditModal"
-    @update:model-value="$emit('update:controversiaEditModal', $event)"
+    :model-value="props.modelValue"
+    @update:model-value="$emit('update:modelValue', $event)"
     persistent
   >
     <q-card>
-      <q-card-section class="bg-primary text-white text-center tw-shadow-lg">
-        <div class="text-h6">Editar controversia.</div>
+      <q-card-section class="text-center text-white bg-primary tw-shadow-lg">
+        <div class="text-h6">Editar apelacion.</div>
       </q-card-section>
       <q-card-section class="q-py-md">
         <div class="text-h6">Incidencia: {{ incidencia?.folio }}</div>
@@ -21,9 +21,9 @@
       </q-card-section>
       <q-separator />
       <q-card-section class="q-py-md" v-if="sancion">
-        <div class="text-h6 text-center">involucrados</div>
+        <div class="text-center text-h6">involucrados</div>
         <table class="q-table">
-          <thead class="text-center bg-primary text-white">
+          <thead class="text-center text-white bg-primary">
             <tr>
               <th>#</th>
               <th>PPL</th>
@@ -47,7 +47,7 @@
           <q-banner
             v-if="mostrarBanner"
             dense
-            class="tw-bg-amber-400 text-white relative-position q-pa-md"
+            class="text-white tw-bg-amber-400 relative-position q-pa-md"
             style="padding-right: 3rem"
           >
             <q-btn
@@ -63,8 +63,8 @@
               <q-icon name="warning" color="white" />
             </template>
 
-            recuerda que si la controversia es antes o durante la sanción solo tienes 3 días para
-            que se pueda pausar la misma a partir de que se creó y asignó comité técnico.
+            recuerda que si la apelacion es antes o durante la sanción solo tienes 10 días para que
+            se pueda pausar la misma a partir de que se creó y asignó comité técnico.
           </q-banner>
 
           <q-form>
@@ -75,7 +75,7 @@
                 { label: 'Durante la sanción', value: 'durante' },
                 { label: 'Después de la sanción', value: 'despues' },
               ]"
-              label="cuando aplica la controversia"
+              label="cuando aplica la apelacion"
               clearable
               class="q-ma-md"
             >
@@ -85,7 +85,7 @@
             </select-custom>
             <input-text
               v-model="formData.fecha_solicitud"
-              label="Fecha de admisión de controversia"
+              label="Fecha de admisión de apelacion"
               clearable
               type="date"
               class="q-ma-md"
@@ -112,8 +112,8 @@
             </input-text>
             <input-text
               v-model="formData.organo_jurisdiccional"
-              label="Órgano jurisdiccional que determino la controversia"
-              placeholder="Escribe el Órgano jurisdiccional que determino la controversia"
+              label="Órgano jurisdiccional que determino la apelacion"
+              placeholder="Escribe el Órgano jurisdiccional que determino la apelacion"
               clearable
               class="q-ma-md"
               type="text"
@@ -128,7 +128,7 @@
             </input-text>
             <input-text
               v-model="formData.observaciones"
-              label="Observaciones de la controversia"
+              label="Observaciones de la apelacion"
               clearable
               type="textarea"
               class="q-ma-md"
@@ -149,7 +149,7 @@
               @uploaded="onUploaded"
               @failed="onUploadFailed"
               @added="onFileAdded"
-              label="Agregar controversia (máx. 10MB)"
+              label="Agregar apelacion (máx. 10MB)"
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
@@ -188,22 +188,22 @@ import type { QRejectedEntry } from 'quasar';
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
 // Modelos
-import type { ControversiaCreate } from 'src/entities/controversia/controversia.model.ts';
+import type { ApelacionCreate } from 'entities/apelacion/apelacion.model';
 import type { SancionData } from 'src/entities/sancion/sancion.model';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
-import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
+import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 
 // Variables
 const emit = defineEmits<{
-  (e: 'update:controversiaEditModal', value: boolean): void;
+  (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
 }>();
 const props = defineProps({
-  controversiaEditModal: { type: Boolean, required: true },
-  isReadonlyControversia: { type: Boolean, required: true },
+  modelValue: { type: Boolean, required: true },
+  isReadonlyApelacion: { type: Boolean, required: true },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel
@@ -212,7 +212,7 @@ const formFields = computed(() => [
 const incidenciaStore = useIncidenciaStore();
 const sessionStore = useSessionStore();
 const $q = useQuasar();
-const controversiaService = new ControversiaService();
+const apelacionService = new ApelacionService();
 
 const incidencia = incidenciaStore.getIncidencia();
 const token = sessionStore.token;
@@ -225,19 +225,19 @@ const uploadHeaders = [
 const mostrarBanner = ref(true);
 const filePreviewUrl = ref<string | null>(null);
 
-const formData = ref<ControversiaCreate>({
+const formData = ref<ApelacionCreate>({
   cuando_aplica: null,
   fecha_solicitud: null,
   numero_sesion: null,
   organo_jurisdiccional: null,
   observaciones: null,
-  controversia_file: null,
+  apelacion_file: null,
 });
 
 // Funciones
 const closeModal = () => {
   localStorage.removeItem('archivo');
-  emit('update:controversiaEditModal', false);
+  emit('update:modelValue', false);
 };
 
 const checkFileType = (files: readonly File[]) => {
@@ -282,7 +282,7 @@ const saveInfo = async () => {
   const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
   if (filename.path) {
     try {
-      formData.value.controversia_file = filename.path;
+      formData.value.apelacion_file = filename.path;
       const incidente_id = incidencia.id;
       const sancion_id = sancion.value?.id;
       if (!incidente_id || !sancion_id) {
@@ -292,7 +292,7 @@ const saveInfo = async () => {
         });
         return;
       }
-      const response = await controversiaService.agregarSancion(
+      const response = await apelacionService.agregarSancion(
         incidente_id,
         sancion_id,
         formData.value,
@@ -303,7 +303,7 @@ const saveInfo = async () => {
       closeModal();
       $q.notify({
         type: 'positive',
-        message: 'Controversia agregada correctamente',
+        message: 'Apelacion agregada correctamente',
       });
     } catch (error: unknown) {
       let message = 'Error inesperado';

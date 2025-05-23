@@ -16,7 +16,7 @@ export class ApelacionService extends BaseService {
     return this.patch(`${this.baseUrl}/${incidente_id}/${sancion_id}/agregar-apelacion`, payload);
   }
 
-  async enviarComiteTecnico(
+  async enviarComiteTecnicoApelacion(
     incidente_id: number,
     sancion_id: number | null,
   ): Promise<Incidencia | null> {
@@ -26,7 +26,7 @@ export class ApelacionService extends BaseService {
     return this.post(`${this.baseUrl}/${incidente_id}/${sancion_id}/comite-tecnico-apelacion`, {});
   }
 
-  async guardarResolucion(
+  async guardarResolucionApelacion(
     incidente_id: number,
     sancion_id: number,
     payload: ApelacionResolucionCreate,
@@ -37,10 +37,13 @@ export class ApelacionService extends BaseService {
     );
   }
 
-  async enviarSeguridad(incidente_id: number, sancion_id: number | null) {
+  async enviarSeguridadApelacion(incidente_id: number, sancion_id: number | null) {
     if (!sancion_id) {
       return null;
     }
-    return this.post(`${this.baseUrl}/${incidente_id}/${sancion_id}/enviar-seguridad-apelacion`, {});
+    return this.post(
+      `${this.baseUrl}/${incidente_id}/${sancion_id}/enviar-seguridad-apelacion`,
+      {},
+    );
   }
 }

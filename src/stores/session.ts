@@ -30,12 +30,6 @@ export const useSessionStore = defineStore('session', {
       if (token) this.setToken(token);
       if (persona) this.setPersona(JSON.parse(persona));
       if (expediente) this.setExpediente(JSON.parse(expediente));
-
-      console.log('[Pinia] Datos de sesión cargados:', {
-        token: this.token,
-        persona: this.persona,
-        expediente: this.expediente,
-      });
     },
   },
 });

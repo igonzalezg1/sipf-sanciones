@@ -281,7 +281,7 @@ const saveInfo = async () => {
       closeModal();
       $q.notify({
         type: 'positive',
-        message: 'Controversia agregada correctamente',
+        message: 'Resolucion de controversia agregada correctamente',
       });
     } catch (error: unknown) {
       let message = 'Error inesperado';

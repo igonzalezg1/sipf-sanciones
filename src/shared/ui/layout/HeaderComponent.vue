@@ -18,7 +18,6 @@
 <script setup lang="ts">
 import ImgLogo from 'src/assets/img/logo.png';
 import Avatar from 'src/assets/img/avatar.jpg';
-import { defineProps } from 'vue';
 import MenuComponent from './MenuComponent.vue';
 
 const props = withDefaults(
