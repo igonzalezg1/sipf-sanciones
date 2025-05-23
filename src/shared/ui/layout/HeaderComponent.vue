@@ -31,17 +31,17 @@ import { LogoutService } from 'src/app/services/LogoutService';
 import CentroRelojComponent from 'src/shared/ui/CentroRelojComponent.vue';
 
 /**
-* Componente Header principal de la aplicación.
-*
-* Muestra:
-* - Logo que refresca la ruta principal al hacer clic.
-* - Nombre del centro y reloj (oculto en pantallas pequeñas).
-* - Menú de usuario con opción de logout.
-*
-* Props:
-* - `user`: Datos del usuario autenticado.
-* - `centro`: Datos del centro asociado.
-*/
+ * Componente Header principal de la aplicación.
+ *
+ * Muestra:
+ * - Logo que refresca la ruta principal al hacer clic.
+ * - Nombre del centro y reloj (oculto en pantallas pequeñas).
+ * - Menú de usuario con opción de logout.
+ *
+ * Props:
+ * - `user`: Datos del usuario autenticado.
+ * - `centro`: Datos del centro asociado.
+ */
 const props = defineProps<{
   user?: User;
   centro: Centro;

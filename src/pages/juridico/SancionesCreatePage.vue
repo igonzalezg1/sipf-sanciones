@@ -422,7 +422,12 @@
           </q-stepper-navigation>
         </q-step>
 
-        <q-step :name="4" title="OPCIONES APELACION DE LA CONTROVERSIA" icon="add_comment">
+        <q-step
+          :name="4"
+          title="OPCIONES APELACION DE LA CONTROVERSIA"
+          icon="add_comment"
+          :done="step > 2"
+        >
           <q-card>
             <q-card-header>
               <q-toolbar-title class="text-center text-white text-h6 bg-primary"
@@ -432,78 +437,83 @@
             <q-card-section class="q-pa-md">
               <!-- solicitud de apelacion -->
               <q-btn
-                v-if="puedeAgregarControversia(sancion)"
+                v-if="puedeAgregarApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="agregar apelacion"
                 icon="playlist_add"
-                @click="agregarControversia"
+                @click="agregarApelacion"
               />
               <q-btn
-                v-if="puedeEditarControversia(sancion)"
+                v-if="puedeEditarApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Editar solicitud de apelacion"
                 icon="visibility"
-                @click="editarControversia"
+                @click="editarApelacion"
               />
 
               <q-btn
-                v-if="puedeVerControversia(sancion)"
+                v-if="puedeVerApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Consultar solicitud de apelacion"
                 icon="visibility"
-                @click="verControversia"
+                @click="verApelacion"
               />
 
               <q-btn
-                v-if="puedeMandarComite(sancion)"
+                v-if="puedeMandarComiteApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Enviar a comité técnico"
                 icon="visibility"
-                @click="enviarComiteTecnico"
+                @click="enviarComiteTecnicoApelacion"
               />
               <!-- Resolucion de apelacion -->
               <q-btn
-                v-if="puedeAgregarResolucion(sancion)"
+                v-if="puedeAgregarResolucionApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Agregar resolución de apelacion"
                 icon="playlist_add"
-                @click="agregarResolucionControversia"
+                @click="agregarResolucionApelacion"
               />
               <q-btn
-                v-if="puedeEditarResolucion(sancion)"
+                v-if="puedeEditarResolucionApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Editar resolución de apelacion"
                 icon="visibility"
-                @click="editResolucionControversia"
+                @click="editResolucionApelacion"
               />
               <q-btn
-                v-if="puedeVerResolucion(sancion)"
+                v-if="puedeVerResolucionApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Consultar resolución de apelacion"
                 icon="visibility"
-                @click="verResolucionControversia"
+                @click="verResolucionApelacion"
               />
 
               <q-btn
-                v-if="puedeMandarSeguridad(sancion)"
+                v-if="puedeMandarSeguridadApelacion(sancion)"
                 class="q-mx-lg"
                 color="primary"
                 label="Enviar a seguridad"
                 icon="visibility"
-                @click="enviarSeguridadControversia"
+                @click="enviarSeguridadApelacion"
               />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 5" color="primary" label="Continuar" />
+            <q-btn
+              @click="step = 5"
+              color="primary"
+              label="Continuar"
+              v-if="puedeVerResolucionApelacion(sancion)"
+            />
             <q-btn flat @click="step = 2" color="primary" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
@@ -515,8 +525,75 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <!-- solicitud de amparo -->
+              <q-btn
+                v-if="puedeAgregarAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="agregar amparo"
+                icon="playlist_add"
+                @click="agregarAmparo"
+              />
+              <q-btn
+                v-if="puedeEditarAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar solicitud de amparo"
+                icon="visibility"
+                @click="editarAmparo"
+              />
+
+              <q-btn
+                v-if="puedeVerAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar solicitud de amparo"
+                icon="visibility"
+                @click="verAmparo"
+              />
+
+              <q-btn
+                v-if="puedeMandarComiteAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a comité técnico"
+                icon="visibility"
+                @click="enviarComiteTecnicoAmparo"
+              />
+              <!-- Resolucion de amparo -->
+              <q-btn
+                v-if="puedeAgregarResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Agregar resolución de amparo"
+                icon="playlist_add"
+                @click="agregarResolucionAmparo"
+              />
+              <q-btn
+                v-if="puedeEditarResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar resolución de amparo"
+                icon="visibility"
+                @click="editResolucionAmparo"
+              />
+              <q-btn
+                v-if="puedeVerResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar resolución de amparo"
+                icon="visibility"
+                @click="verResolucionAmparo"
+              />
+
+              <q-btn
+                v-if="puedeMandarSeguridadAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a seguridad"
+                icon="visibility"
+                @click="enviarSeguridadAmparo"
+              />
             </q-card-section>
           </q-card>
 
@@ -534,13 +611,13 @@
     :sancionId="sancion.id"
     v-if="sancion"
   />
+  <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
+
   <AgregarControversiaModal
     v-model="controversiaCreateModal"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
-
-  <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
   <showEditcontroversiaModal
     :controversiaEditModal="controversiaEditModal"
     :isReadonlyControversia="isReadonlyControversia"
@@ -555,6 +632,51 @@
 
   <ShowEditControversiaResolucionModal
     v-model="verditcontroversiaModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <AgregarApelacionModal
+    v-model="apelacionCreateModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <ShowEditApelacionModal
+    v-model="apelacionEditModal"
+    :isReadonlyApelacion="isReadonlyApelacion"
+    @upload-success="actualizarInfo"
+  />
+
+  <AgregarResolucionApelacionModal
+    v-model="agregarResolucionApelacionM"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditResolucionApelacionModal
+    v-model="verditApelacionModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <AgregarAmparoModal
+    v-model="amparoCreateModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <ShowEditAmparoModal
+    v-model="amparoEditModal"
+    :isReadonlyAmparo="isReadonlyAmparo"
+    @upload-success="actualizarInfo"
+  />
+
+  <AgregarResolucionAmparoModal
+    v-model="agregarResolucionAmparoM"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditResolucionAmparoModal
+    v-model="verditAmparoModal"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
@@ -585,20 +707,52 @@ import {
   puedeVerResolucion,
   puedeMandarSeguridad,
 } from 'src/app/helpers/controversia/validaciones';
+
+import {
+  puedeAgregarApelacion,
+  puedeEditarApelacion,
+  puedeVerApelacion,
+  puedeMandarComiteApelacion,
+  puedeAgregarResolucionApelacion,
+  puedeEditarResolucionApelacion,
+  puedeVerResolucionApelacion,
+  puedeMandarSeguridadApelacion,
+} from 'src/app/helpers/apelaciones/validaciones';
+
+import {
+  puedeAgregarAmparo,
+  puedeEditarAmparo,
+  puedeVerAmparo,
+  puedeMandarComiteAmparo,
+  puedeAgregarResolucionAmparo,
+  puedeEditarResolucionAmparo,
+  puedeVerResolucionAmparo,
+  puedeMandarSeguridadAmparo,
+} from 'src/app/helpers/amparo/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
-import UploadFileModal from './UploadFileModal.vue';
-import AgregarControversiaModal from './controversia/AgregarControversiaModal.vue';
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
+import UploadFileModal from './UploadFileModal.vue';
 import ShowEditModal from './ShowEditModal.vue';
+import AgregarControversiaModal from './controversia/AgregarControversiaModal.vue';
 import showEditcontroversiaModal from './controversia/ShowEditControversiaModal.vue';
 import AgregarSolicitudControversiaModal from './controversia/AgregarResolucionControversiaModal.vue';
 import ShowEditControversiaResolucionModal from './controversia/ShowEditResolucionControversiaModal.vue';
+import AgregarApelacionModal from './apelacion/AgregarApelacionModal.vue';
+import ShowEditApelacionModal from './apelacion/ShowEditApelacionModal.vue';
+import AgregarResolucionApelacionModal from './apelacion/AgregarResolucionApelacionModal.vue';
+import ShowEditResolucionApelacionModal from './apelacion/ShowEditResolucionApelacionModal.vue';
+import AgregarAmparoModal from './Amparo/AgregarAmparoModal.vue';
+import ShowEditAmparoModal from './Amparo/ShowEditAmparoModal.vue';
+import AgregarResolucionAmparoModal from './Amparo/AgregarResolucionAmparoModal.vue';
+import ShowEditResolucionAmparoModal from './Amparo/ShowEditResolucionAmparoModal.vue';
 // Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
+import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
+import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 // Stores
@@ -607,15 +761,25 @@ const incidenciaStore = useIncidenciaStore();
 const sancionesService = new SancionesService();
 const tiposSancionService = new CatalogsService();
 const controversiaService = new ControversiaService();
+const apelacionService = new ApelacionService();
+const amparoService = new AmparoService();
 const router = useRouter();
 const $q = useQuasar();
 // Variables de modales
 const showModalUpload = ref(false);
-const controversiaCreateModal = ref(false);
 const showEdiModal = ref(false);
+const controversiaCreateModal = ref(false);
 const controversiaEditModal = ref(false);
 const agregarResolucionControversiaM = ref(false);
 const verditcontroversiaModal = ref(false);
+const apelacionCreateModal = ref(false);
+const apelacionEditModal = ref(false);
+const agregarResolucionApelacionM = ref(false);
+const verditApelacionModal = ref(false);
+const amparoCreateModal = ref(false);
+const amparoEditModal = ref(false);
+const agregarResolucionAmparoM = ref(false);
+const verditAmparoModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -627,6 +791,10 @@ const tiposSancion = ref<object[]>([]);
 const isReadonly = ref(false);
 const isReadonlyControversia = ref(false);
 const isReadonlyResolucionControversia = ref(false);
+const isReadonlyApelacion = ref(false);
+const isReadonlyResolucionApelacion = ref(false);
+const isReadonlyAmparo = ref(false);
+const isReadonlyResolucionAmparo = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -804,6 +972,63 @@ function verResolucionControversia(): void {
   isReadonlyResolucionControversia.value = true;
 }
 
+function agregarApelacion(): void {
+  apelacionCreateModal.value = true;
+}
+
+function editarApelacion(): void {
+  apelacionEditModal.value = true;
+  isReadonlyApelacion.value = false;
+}
+
+function verApelacion(): void {
+  apelacionEditModal.value = true;
+  isReadonlyApelacion.value = true;
+}
+
+function agregarResolucionApelacion(): void {
+  agregarResolucionApelacionM.value = true;
+}
+
+function editResolucionApelacion(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+function verResolucionApelacion(): void {
+  verditApelacionModal.value = true;
+  isReadonlyResolucionApelacion.value = true;
+}
+
+// Amparos
+function agregarAmparo(): void {
+  amparoCreateModal.value = true;
+}
+
+function editarAmparo(): void {
+  amparoEditModal.value = true;
+  isReadonlyAmparo.value = false;
+}
+
+function verAmparo(): void {
+  amparoEditModal.value = true;
+  isReadonlyAmparo.value = true;
+}
+
+function agregarResolucionAmparo(): void {
+  agregarResolucionAmparoM.value = true;
+}
+
+function editResolucionAmparo(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+function verResolucionAmparo(): void {
+  verditAmparoModal.value = true;
+  isReadonlyResolucionAmparo.value = true;
+}
+
 async function enviarComiteTecnico(): Promise<void> {
   const response = await controversiaService.enviarComiteTecnico(
     incidencia.value.id,
@@ -831,6 +1056,66 @@ async function enviarSeguridadControversia(): Promise<void> {
   $q.notify({
     type: 'positive',
     message: 'Controversia enviada a seguridad correctamente',
+  });
+}
+
+async function enviarComiteTecnicoApelacion(): Promise<void> {
+  const response = await apelacionService.enviarComiteTecnicoApelacion(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Sanción enviada a comité técnico correctamente',
+  });
+}
+
+async function enviarSeguridadApelacion(): Promise<void> {
+  const response = await apelacionService.enviarSeguridadApelacion(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Apelacion enviada a seguridad correctamente',
+  });
+}
+
+async function enviarComiteTecnicoAmparo(): Promise<void> {
+  const response = await amparoService.enviarComiteTecnicoAmparo(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Sanción enviada a comité técnico correctamente',
+  });
+}
+
+async function enviarSeguridadAmparo(): Promise<void> {
+  const response = await amparoService.enviarSeguridadAmparo(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Amparo enviado a seguridad correctamente',
   });
 }
 </script>

@@ -6,7 +6,7 @@
   >
     <q-card>
       <q-card-section class="text-center text-white bg-primary tw-shadow-lg">
-        <div class="text-h6">Agregar resolucion de controversia.</div>
+        <div class="text-h6">Agregar resolucion de apelacion.</div>
       </q-card-section>
       <q-card-section class="q-py-md">
         <div class="text-h6">Incidencia: {{ incidencia?.folio }}</div>
@@ -47,7 +47,7 @@
           <q-form>
             <input-text
               v-model="formData.fecha_resolucion"
-              label="Fecha de resolución de controversia"
+              label="Fecha de resolución de apelacion"
               clearable
               type="date"
               class="q-ma-md"
@@ -95,7 +95,7 @@
 
             <input-text
               v-model="formData.observaciones_resolucion"
-              label="Observaciones de la controversia"
+              label="Observaciones de la apelacion"
               clearable
               type="textarea"
               class="q-ma-md"
@@ -128,7 +128,7 @@
               @uploaded="onUploaded"
               @failed="onUploadFailed"
               @added="onFileAdded"
-              label="Agregar resolución de controversia (máx. 10MB)"
+              label="Agregar resolución de apelacion (máx. 10MB)"
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
@@ -166,14 +166,14 @@ import type { QRejectedEntry } from 'quasar';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 // Modelos
-import type { ControversiaResolucionCreate } from 'src/entities/controversia/controversia.model';
+import type { ApelacionResolucionCreate } from 'entities/apelacion/apelacion.model';
 import type { SancionData } from 'src/entities/sancion/sancion.model';
 import type { Incidencia } from 'entities/incidente/incidente.model';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
-import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
+import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 
 // Variables
 const emit = defineEmits<{
@@ -190,7 +190,7 @@ const formFields = computed(() => [
 const incidenciaStore = useIncidenciaStore();
 const sessionStore = useSessionStore();
 const $q = useQuasar();
-const controversiaService = new ControversiaService();
+const apelacionService = new ApelacionService();
 
 const incidencia = incidenciaStore.getIncidencia();
 const token = sessionStore.token;
@@ -202,13 +202,13 @@ const uploadHeaders = [
 ];
 const filePreviewUrl = ref<string | null>(null);
 
-const formData = ref<ControversiaResolucionCreate>({
+const formData = ref<ApelacionResolucionCreate>({
   fecha_resolucion: '',
   fecha_inicio_sancion: '',
   fecha_fin_sancion: '',
   observaciones_resolucion: '',
   resolucion_juez: '',
-  controversia_resolucion_file: '',
+  apelacion_resolucion_file: '',
   fecha_suspencion: '',
 });
 
@@ -260,7 +260,7 @@ const saveInfo = async () => {
   const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
   if (filename.path) {
     try {
-      formData.value.controversia_resolucion_file = filename.path;
+      formData.value.apelacion_resolucion_file = filename.path;
       const incidente_id = incidencia.id;
       const sancion_id = sancion.value?.id;
       if (!incidente_id || !sancion_id) {
@@ -270,7 +270,7 @@ const saveInfo = async () => {
         });
         return;
       }
-      const response = await controversiaService.guardarResolucion(
+      const response = await apelacionService.guardarResolucionApelacion(
         incidente_id,
         sancion_id,
         formData.value,
@@ -281,7 +281,7 @@ const saveInfo = async () => {
       closeModal();
       $q.notify({
         type: 'positive',
-        message: 'Controversia agregada correctamente',
+        message: 'Resolucion de apelacion agregada correctamente',
       });
     } catch (error: unknown) {
       let message = 'Error inesperado';

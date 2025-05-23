@@ -1,85 +1,85 @@
 import type { Incidencia } from 'entities/incidente/incidente.model';
 import type { SancionData } from 'src/entities/sancion/sancion.model';
 import { useIncidenciaStore } from 'src/stores/incidencias';
-import type { Controversia } from 'entities/controversia/controversia.model';
+import type { Apelacion } from 'entities/apelacion/apelacion.model';
 
 // Helpers públicos
-export function puedeAgregarControversia(sancion: SancionData): boolean {
+export function puedeAgregarApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
-  return !tieneResolucionControversia(incidencia) && !esSuspendida(sancion);
+  return !tieneResolucionApelacion(incidencia) && !esSuspendida(sancion);
 }
 
-export function puedeEditarControversia(sancion: SancionData): boolean {
+export function puedeEditarApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
   return (
-    tieneResolucionControversia(incidencia) &&
+    tieneResolucionApelacion(incidencia) &&
     !esSuspendida(sancion) &&
-    !controversiaEstaEnComite(incidencia)
+    !apelacionEstaEnComite(incidencia)
   );
 }
 
-export function puedeVerControversia(sancion: SancionData): boolean {
+export function puedeVerApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
-  return tieneResolucionControversia(incidencia) && controversiaEstaEnComite(incidencia);
+  return tieneResolucionApelacion(incidencia) && apelacionEstaEnComite(incidencia);
 }
 
-export function puedeMandarComite(sancion: SancionData): boolean {
+export function puedeMandarComiteApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
   return (
-    tieneResolucionControversia(incidencia) &&
-    !controversiaEstaEnComite(incidencia) &&
+    tieneResolucionApelacion(incidencia) &&
+    !apelacionEstaEnComite(incidencia) &&
     !esSuspendida(sancion)
   );
 }
 
-export function puedeAgregarResolucion(sancion: SancionData): boolean {
+export function puedeAgregarResolucionApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
   return (
-    controversiaEstaEnComite(incidencia) &&
-    !controversiaTieneResolucion(incidencia) &&
-    !tieneResolucionApelacion(incidencia) &&
+    apelacionEstaEnComite(incidencia) &&
+    !apelacionTieneResolucion(incidencia) &&
+    !tieneResolucionAmparo(incidencia) &&
     puedeAgregarSolicitudResolucion(incidencia) &&
     !esSuspendida(sancion)
   );
 }
 
-export function puedeEditarResolucion(sancion: SancionData): boolean {
+export function puedeEditarResolucionApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
   return (
-    controversiaEstaEnComite(incidencia) &&
-    controversiaTieneResolucion(incidencia) &&
-    !controversiaMandadaASeguridad(incidencia) &&
+    apelacionEstaEnComite(incidencia) &&
+    apelacionTieneResolucion(incidencia) &&
+    !apelacionMandadaASeguridad(incidencia) &&
     !esSuspendida(sancion)
   );
 }
 
-export function puedeVerResolucion(sancion: SancionData): boolean {
+export function puedeVerResolucionApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
-  return controversiaEstaEnComite(incidencia) && controversiaMandadaASeguridad(incidencia);
+  return apelacionEstaEnComite(incidencia) && apelacionMandadaASeguridad(incidencia);
 }
 
-export function puedeMandarSeguridad(sancion: SancionData): boolean {
+export function puedeMandarSeguridadApelacion(sancion: SancionData): boolean {
   const incidencia = useIncidenciaStore().getIncidencia();
   if (!sancion || !incidencia) return false;
 
   return (
-    controversiaEstaEnComite(incidencia) &&
-    controversiaTieneResolucion(incidencia) &&
-    !controversiaMandadaASeguridad(incidencia) &&
+    apelacionEstaEnComite(incidencia) &&
+    apelacionTieneResolucion(incidencia) &&
+    !apelacionMandadaASeguridad(incidencia) &&
     !esSuspendida(sancion)
   );
 }
@@ -89,41 +89,39 @@ function getSancion(incidencia: Incidencia): SancionData | null {
   return incidencia.sanciones?.data?.[0] ?? null;
 }
 
-function getControversia(sancion: SancionData | null): Controversia | null {
-  return sancion?.controversia ?? null;
+function getApelacion(sancion: SancionData | null): Apelacion | null {
+  return sancion?.apelacion ?? null;
 }
 
 function esSuspendida(sancion: SancionData): boolean {
   return sancion.etapa_sancion === 'Suspendida';
 }
 
-function tieneResolucionControversia(incidencia: Incidencia): boolean {
-  return getSancion(incidencia)?.resolucion_controversia_guardada === true;
-}
-
 function tieneResolucionApelacion(incidencia: Incidencia): boolean {
   return getSancion(incidencia)?.resolucion_apelacion_guardada === true;
 }
 
-function controversiaEstaEnComite(incidencia: Incidencia): boolean {
-  const controversia = getControversia(getSancion(incidencia));
-  return typeof controversia?.en_comite === 'number' && controversia.en_comite >= 1;
+function tieneResolucionAmparo(incidencia: Incidencia): boolean {
+  return getSancion(incidencia)?.resolucion_amparo_guardada === true;
 }
 
-function controversiaTieneResolucion(incidencia: Incidencia): boolean {
-  const controversia = getControversia(getSancion(incidencia));
+function apelacionEstaEnComite(incidencia: Incidencia): boolean {
+  const apelacion = getApelacion(getSancion(incidencia));
+  return typeof apelacion?.en_comite === 'number' && apelacion.en_comite >= 1;
+}
+
+function apelacionTieneResolucion(incidencia: Incidencia): boolean {
+  const apelacion = getApelacion(getSancion(incidencia));
   return (
-    typeof controversia?.en_comite === 'number' &&
-    controversia.en_comite > 1 &&
-    controversia.en_comite < 3
+    typeof apelacion?.en_comite === 'number' && apelacion.en_comite > 1 && apelacion.en_comite < 3
   );
 }
 
 function puedeAgregarSolicitudResolucion(incidencia: Incidencia): boolean {
-  const controversia = getControversia(getSancion(incidencia));
-  return typeof controversia?.en_comite === 'number' && controversia.en_comite < 3;
+  const apelacion = getApelacion(getSancion(incidencia));
+  return typeof apelacion?.en_comite === 'number' && apelacion.en_comite < 3;
 }
 
-function controversiaMandadaASeguridad(incidencia: Incidencia): boolean {
-  return getControversia(getSancion(incidencia))?.en_comite === 3;
+function apelacionMandadaASeguridad(incidencia: Incidencia): boolean {
+  return getApelacion(getSancion(incidencia))?.en_comite === 3;
 }

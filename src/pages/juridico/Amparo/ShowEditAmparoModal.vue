@@ -6,7 +6,7 @@
   >
     <q-card>
       <q-card-section class="text-center text-white bg-primary tw-shadow-lg">
-        <div class="text-h6">Editar apelacion.</div>
+        <div class="text-h6">Editar amparo.</div>
       </q-card-section>
       <q-card-section class="q-py-md">
         <div class="text-h6">Incidencia: {{ incidencia?.folio }}</div>
@@ -63,8 +63,8 @@
               <q-icon name="warning" color="white" />
             </template>
 
-            recuerda que si la apelacion es antes o durante la sanción solo tienes 10 días para que
-            se pueda pausar la misma a partir de que se creó y asignó comité técnico.
+            recuerda que si la amparo es antes o durante la sanción solo tienes 15 días para que se
+            pueda pausar la misma a partir de que se creó y asignó comité técnico.
           </q-banner>
 
           <q-form>
@@ -75,7 +75,7 @@
                 { label: 'Durante la sanción', value: 'durante' },
                 { label: 'Después de la sanción', value: 'despues' },
               ]"
-              label="cuando aplica la apelacion"
+              label="cuando aplica la amparo"
               clearable
               class="q-ma-md"
             >
@@ -85,7 +85,7 @@
             </select-custom>
             <input-text
               v-model="formData.fecha_solicitud"
-              label="Fecha de admisión de apelacion"
+              label="Fecha de admisión de amparo"
               clearable
               type="date"
               class="q-ma-md"
@@ -112,8 +112,8 @@
             </input-text>
             <input-text
               v-model="formData.organo_jurisdiccional"
-              label="Órgano jurisdiccional que determino la apelacion"
-              placeholder="Escribe el Órgano jurisdiccional que determino la apelacion"
+              label="Órgano jurisdiccional que determino la amparo"
+              placeholder="Escribe el Órgano jurisdiccional que determino la amparo"
               clearable
               class="q-ma-md"
               type="text"
@@ -128,7 +128,7 @@
             </input-text>
             <input-text
               v-model="formData.observaciones"
-              label="Observaciones de la apelacion"
+              label="Observaciones de la amparo"
               clearable
               type="textarea"
               class="q-ma-md"
@@ -149,7 +149,7 @@
               @uploaded="onUploaded"
               @failed="onUploadFailed"
               @added="onFileAdded"
-              label="Agregar apelacion (máx. 10MB)"
+              label="Agregar amparo (máx. 10MB)"
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
@@ -188,13 +188,13 @@ import type { QRejectedEntry } from 'quasar';
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
 // Modelos
-import type { ApelacionCreate } from 'entities/apelacion/apelacion.model';
+import type { AmparoCreate } from 'entities/amparo/amparo.model';
 import type { SancionData } from 'src/entities/sancion/sancion.model';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
-import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
+import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 
 // Variables
 const emit = defineEmits<{
@@ -203,7 +203,7 @@ const emit = defineEmits<{
 }>();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
-  isReadonlyApelacion: { type: Boolean, required: true },
+  isReadonlyAmparo: { type: Boolean, required: true },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel
@@ -212,7 +212,7 @@ const formFields = computed(() => [
 const incidenciaStore = useIncidenciaStore();
 const sessionStore = useSessionStore();
 const $q = useQuasar();
-const apelacionService = new ApelacionService();
+const amparoService = new AmparoService();
 
 const incidencia = incidenciaStore.getIncidencia();
 const token = sessionStore.token;
@@ -225,13 +225,13 @@ const uploadHeaders = [
 const mostrarBanner = ref(true);
 const filePreviewUrl = ref<string | null>(null);
 
-const formData = ref<ApelacionCreate>({
+const formData = ref<AmparoCreate>({
   cuando_aplica: null,
   fecha_solicitud: null,
   numero_sesion: null,
   organo_jurisdiccional: null,
   observaciones: null,
-  apelacion_file: null,
+  amparo_file: null,
 });
 
 // Funciones
@@ -282,7 +282,7 @@ const saveInfo = async () => {
   const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
   if (filename.path) {
     try {
-      formData.value.apelacion_file = filename.path;
+      formData.value.amparo_file = filename.path;
       const incidente_id = incidencia.id;
       const sancion_id = sancion.value?.id;
       if (!incidente_id || !sancion_id) {
@@ -292,18 +292,14 @@ const saveInfo = async () => {
         });
         return;
       }
-      const response = await apelacionService.agregarSancion(
-        incidente_id,
-        sancion_id,
-        formData.value,
-      );
+      const response = await amparoService.agregarSancion(incidente_id, sancion_id, formData.value);
 
       incidenciaStore.setIncidencia(response);
       emit('upload-success');
       closeModal();
       $q.notify({
         type: 'positive',
-        message: 'Apelacion agregada correctamente',
+        message: 'Amparo agregado correctamente',
       });
     } catch (error: unknown) {
       let message = 'Error inesperado';

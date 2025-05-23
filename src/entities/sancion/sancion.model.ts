@@ -1,3 +1,5 @@
+import type { Amparo } from 'entities/amparo/amparo.model';
+import type { Apelacion } from 'entities/apelacion/apelacion.model';
 import type { Controversia } from 'entities/controversia/controversia.model';
 
 export interface Sancion {
@@ -28,7 +30,10 @@ export interface SancionData {
   puede_mandar_seguridad: boolean;
   resolucion_controversia_guardada: boolean;
   resolucion_apelacion_guardada: boolean;
+  resolucion_amparo_guardada: boolean;
   controversia: Controversia;
+  apelacion: Apelacion;
+  amparo: Amparo;
 }
 
 export interface SancionCreate {
