@@ -5,19 +5,20 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
-import { useSessionStore } from 'src/stores/session';
+import { checkAuthAndPermissions } from 'src/shared/lib/guards/auth.guard';
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
+/**
+ * Crea la instancia principal de Vue Router con historial adaptado al entorno
+ * (SSR, history o hash). También configura los guards globales y el comportamiento
+ * de scroll y título por ruta.
  *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
+ * @returns Instancia configurada de Vue Router.
  */
-
 export default function () {
-  let createHistory;
+  let createHistory:
+    | typeof createMemoryHistory
+    | typeof createWebHistory
+    | typeof createWebHashHistory;
 
   if (process.env.SERVER) {
     createHistory = createMemoryHistory;
@@ -30,21 +31,32 @@ export default function () {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  /**
+   * Guard global que se ejecuta antes de cada navegación.
+   * Valida si el usuario está autenticado y tiene permisos para acceder.
+   *
+   * @param to - Ruta destino.
+   * @param from - Ruta origen.
+   * @param next - Función que decide si continuar o redirigir.
+   */
   Router.beforeEach((to, from, next) => {
-    const session = useSessionStore();
+    const redirect = checkAuthAndPermissions(to); // Verifica token y permisos
+    if (redirect) return next(redirect); // Redirige si no cumple
+    next(); // Permite si está bien
+  });
 
-    if (to.meta.requiresAuth && !session.token) {
-      next('/not-logged'); // 🔒 Redirige si no hay token
-    } else {
-      next(); // ✅ Permite el acceso
-    }
+  /**
+   * Cambia el título del documento después de cada navegación.
+   *
+   * @param to - Ruta destino.
+   */
+  Router.afterEach((to) => {
+    const baseTitle = 'Sistema Integral Penitenciario Federal';
+    const routeTitle = to.meta?.title as string;
+    document.title = routeTitle ? `${baseTitle} - ${routeTitle}` : baseTitle;
   });
 
   return Router;

@@ -32,6 +32,21 @@
   </q-menu>
 </template>
 
+
+/**
+* Componente de avatar con menú desplegable de usuario.
+*
+* Muestra:
+* - Avatar del usuario (de URL o generado por `ui-avatars`)
+* - Nombre, tipo y rol asignado
+* - Opción para cerrar sesión
+*
+* Props:
+* @prop {User} user - Objeto de usuario autenticado con nombre, rol y avatar
+*
+* Emits:
+* @event logout - Evento emitido al hacer clic en "Cerrar Sesión"
+*/
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { User } from 'src/entities/user/user.model';
@@ -41,12 +56,23 @@ const props = defineProps<{ user: User }>();
 const defaultAvatarUrl = 'src/assets/img/avatar.jpg';
 const avatarUrl = ref(getAvatarUrl(props.user));
 
+/**
+ * Retorna la URL del avatar del usuario.
+ * Si tiene una foto, se usa directamente.
+ * Si no, se genera un avatar con iniciales.
+ *
+ * @param {User} user - Usuario autenticado
+ * @returns {string} URL del avatar
+ */
 function getAvatarUrl(user: User) {
-  if (user.photo) return user.photo;
   const initials = encodeURIComponent(user.name.trim());
+
   return `https://ui-avatars.com/api/?name=${initials}&background=random&color=fff`;
 }
 
+/**
+ * Reemplaza la imagen de avatar por defecto si falla la carga.
+ */
 function onAvatarError() {
   avatarUrl.value = defaultAvatarUrl;
 }

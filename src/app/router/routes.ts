@@ -3,45 +3,65 @@ import SancionesJuridicopage from 'src/pages/juridico/SancionesPage.vue';
 import SancionesTecnicoPage from 'src/pages/tecnico/SancionesPage.vue';
 import SancionesTecnicoCreatePage from 'src/pages/tecnico/SancionCreatePage.vue';
 import SancionesJuridicoCreatePage from 'pages/juridico/SancionesCreatePage.vue';
-import NotLogged from 'src/pages/NotLogged.vue';
 
 const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    redirect: 'tecnico',
+  },
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: 'sanciones-tecnico',
+        path: 'tecnico',
         component: SancionesTecnicoPage,
-        meta: { title: 'Sanciones Técnico', requiresAuth: true },
+        meta: {
+          title: 'Sanciones Técnico',
+          requiresAuth: true,
+          permisos: ['tecnico-seguridad-sanciones.consulta'],
+        },
       },
       {
-        path: 'sanciones-juridico',
+        path: 'juridico',
         component: SancionesJuridicopage,
-        meta: { title: 'Sanciones Jurídico', requiresAuth: true },
+        meta: {
+          title: 'Sanciones Jurídico',
+          requiresAuth: true,
+          permisos: ['juridico-sanciones.consulta'],
+        },
       },
       {
-        path: 'sanciones-juridico-crear',
+        path: 'sancion/crear',
         component: SancionesJuridicoCreatePage,
-        meta: { title: 'Sanciones Jurídico', requiresAuth: true },
+        meta: {
+          title: 'Sanciones Jurídico',
+          requiresAuth: true,
+          permisos: ['juridico-sanciones.crear'],
+        },
       },
       {
-        path: 'sanciones-tecnico-crear',
+        path: 'sancion-crear',
         component: SancionesTecnicoCreatePage,
-        meta: { title: 'Sanciones Técnico', requiresAuth: true },
+        meta: {
+          title: 'Sanciones Técnico',
+          requiresAuth: true,
+          permisos: ['tecnico-seguridad-sanciones.consulta'],
+        },
       },
     ],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/not-logged',
-    component: () => NotLogged,
+    component: () => import('pages/errores/NotLogged.vue'),
+  },
+  {
+    path: '/forbidden',
+    component: () => import('pages/errores/ErrorForbidden.vue'),
   },
   {
     path: '/:catchAll(.*)*',
-    component: () => SancionesTecnicoPage,
+    component: () => import('pages/errores/ErrorNotFound.vue'),
   },
 ];
 
