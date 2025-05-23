@@ -1,251 +1,160 @@
 <template>
-  <div v-if="isLoading" class="loading-overlay">
-    <q-spinner-gears color="primary" size="10em" />
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <p class="text-xl text-center">LISTA DE INCIDENCIAS</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12 q-my-md">
-      <q-input dark dense standout v-model="search" input-class="text-right" class="q-ml-md">
-        <template v-slot:append>
-          <q-icon v-if="search === ''" name="search" />
-          <q-icon v-else name="clear" class="cursor-pointer" @click="search = ''" />
-        </template>
-      </q-input>
-    </div>
-  </div>
-  <div class="row" v-if="Object.keys(selected).length > 0">
-    <div class="col-12">
-      <q-btn
-        color="primary"
-        label="Marcar sanciones a no visto (por comite)"
-        class="q-ma-md"
-        @click="sendNoVisto"
-      />
-      <q-btn
-        color="primary"
-        label="Marcar enviado a comite tecnico"
-        class="q-ma-md"
-        @click="enviarComite"
-      />
-    </div>
-  </div>
-  <div class="row" v-if="!isLoading">
-    <div class="col-12">
-      <table class="q-table">
-        <thead class="text-center bg-primary text-white">
-          <tr>
-            <th class="">
-              <q-checkbox color="primary" v-model="checkbox" />
-            </th>
-            <th class="">Folio</th>
-            <th class="">Fecha y hora</th>
-            <th class="">Tipo de incidencia</th>
-            <th class="">Personal que custodia</th>
-            <th class="">Cargo del personal</th>
-            <th class="">Estatus de incidencia</th>
-            <th class="">Acciones</th>
-          </tr>
-        </thead>
-        <tbody v-if="data.length > 0">
-          <tr v-for="(incidencia, index) in data" :key="index">
-            <td>
-              <q-icon
-                v-if="
-                  incidencia.estatus == 'Sanción no vista por comité técnico' ||
-                  incidencia.confirmada_por_comite_tecnico === 1
-                "
-                name="check_circle"
-                size="2em"
-                color="primary"
-              />
-              <q-checkbox
-                v-if="
-                  incidencia.estatus === 'Sanción no vista por comité técnico' ||
-                  incidencia.confirmada_por_comite_tecnico !== 1
-                "
-                color="secondary"
-                :model-value="selected[incidencia.id] === true"
-                @update:model-value="(val) => handleCheckboxChange(incidencia.id, val)"
-              />
-            </td>
-            <td>{{ incidencia.folio }}</td>
-            <td>{{ incidencia.fecha_hora_registro }}</td>
-            <td>{{ incidencia.tipo_incidente_descripcion }}</td>
-            <td>{{ incidencia.persona_registra }}</td>
-            <td>{{ incidencia.persona_registra_cargo }}</td>
-            <td>{{ incidencia.estatus }}</td>
-            <td>
-              <q-btn color="secondary" icon="visibility">
-                <q-tooltip class="bg-secondary">Ver incidencia</q-tooltip>
-              </q-btn>
-              <q-btn
-                color="secondary"
-                icon="import_contacts"
-                v-if="incidencia.confirmada_por_comite_tecnico === 1"
-                @click="verSancion(incidencia)"
-              >
-                <q-tooltip class="bg-secondary">Ver sancion</q-tooltip>
-              </q-btn>
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
-          <tr>
-            <td colspan="8" class="text-center">No hay datos disponibles</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="q-pa-md">
+    <SancionesTable
+      :permisos="sessionStore.permisos ?? []"
+      :rows="incidencias"
+      :pagination="pagination"
+      @sendNoVisto="marcarNoVisto"
+      @enviarComite="marcarEnviadoComite"
+      @sancion="verSancion"
+      @ver="abrirFormulario"
+      @request="(params: any) => onPaginationChanged(params)"
+    />
 
-      <q-pagination
-        v-model="page"
-        :max="pagination.total_pages"
-        :max-pages="5"
-        boundary-numbers
-        direction-links
-        class="q-mt-md full-width flex justify-center"
-        color="primary"
-        @update:model-value="loadPage"
-      />
-    </div>
+    <IncidenciaShowModal ref="modalVer" />
   </div>
 </template>
 
 <script setup lang="ts">
-// Imports
-import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
+import { Notify } from 'quasar';
+import { ref, onMounted, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
-// Stores
-import { useSessionStore } from 'stores/session';
-import { useIncidenciaStore } from 'stores/incidencias';
-// Modelos
+import SancionesTable from 'src/widgets/TableSanciones.vue';
+import type { PaginatedResponse } from 'src/app/services/baseService';
+import { useSessionStore } from 'src/stores/session';
+import { useIncidenciaStore } from 'src/stores/incidencias';
+import { IncidenciaService } from 'src/app/services/IncidenciaService';
 import type { Incidencia } from 'entities/incidente/incidente.model';
-// Servicios
-import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
+import IncidenciaShowModal from 'src/features/incidencias/show/IncidenciaShowModal.vue';
 
-// Variables
-const isLoading = ref(true);
-const service = new IncidenciasService();
-const page = ref(1);
-const $q = useQuasar();
-const data = ref<Incidencia[]>([]);
-const pagination = ref();
-const search = ref('');
-const checkbox = false;
-const selected = ref<Record<number, boolean>>({});
 const sessionStore = useSessionStore();
 const incidenciaStore = useIncidenciaStore();
-const scope = ref({});
+const incidenciaService = new IncidenciaService(sessionStore.token);
+const $loader = getCurrentInstance()?.appContext.config.globalProperties.$loader;
 const router = useRouter();
+const modalVer = ref();
 
-// Funciones
-onMounted(async () => {
-  try {
-    scope.value = {
-      porExpedienteEnviado: sessionStore.expediente?.id,
-      // rutaAccesso: 'juridico-sanciones',
-    };
-    const include = 'sanciones,involucrados_para_sancion';
-    // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;
-    const response = await service.getIncidencias(include, scope.value);
-    if (response?.data) {
-      data.value = response.data;
-    }
-    pagination.value = response?.meta.pagination;
-  } catch (error: unknown) {
-    let message = 'Error inesperado';
-    if (error instanceof Error) {
-      message = error.message;
-    }
-
-    $q.notify({
-      type: 'negative',
-      message,
-    });
-  } finally {
-    isLoading.value = false;
-  }
+const loading = ref(false);
+const paginaActual = ref(1);
+const incidencias = ref<Incidencia[]>([]);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
 });
 
-async function loadPage() {
-  isLoading.value = true;
+/**
+ * Carga la lista de incidencias desde el backend con paginación.
+ */
+async function cargarIncidencias(goToFirstPage = false) {
+  if (goToFirstPage) {
+    paginaActual.value = 1;
+    pagination.value.page = 1;
+  }
+
+  loading.value = true;
+
+  const persona = sessionStore.persona;
+  const expediente = sessionStore.expediente;
+
+  const params: Record<string, unknown> = {};
+
+  if (persona?.id && expediente?.id) {
+    params.scope = { porExpedienteEnviado: expediente.id };
+    params.include = `sanciones:persona_id(${persona.id}),involucrados_para_sancion`;
+  } else {
+    params.scope = { porCentro: sessionStore.centro?.id ?? 0 };
+    params.include = 'sanciones,involucrados_para_sancion';
+  }
+
   try {
-    scope.value = {
-      porExpedienteEnviado: sessionStore.expediente?.id,
-      // rutaAccesso: 'juridico-sanciones',
-    };
-    const include = 'sanciones,involucrados_para_sancion';
-    // const include = `sanciones:persona_id(${sessionStore.persona?.id}),involucrados_para_sancion`;
-    const response = await service.getIncidencias(include, scope.value);
-    if (response?.data) {
-      data.value = response.data;
+    const response: PaginatedResponse<Incidencia> | null =
+      await incidenciaService.getIncidenciasPaginadas(paginaActual.value, params);
+
+    if (response) {
+      incidencias.value = response.data;
+      pagination.value = {
+        ...pagination.value,
+        page: response.meta.pagination.current_page,
+        rowsPerPage: response.meta.pagination.per_page,
+        rowsNumber: response.meta.pagination.total,
+      };
     }
-    pagination.value = response?.meta.pagination;
-    page.value = pagination.value.current_page;
   } catch (error) {
-    $q.notify({
+    console.error('Error al cargar incidencias:', error);
+    Notify.create({
       type: 'negative',
-      message: (error as Error).message,
+      message: 'Error al cargar las incidencias',
+      position: 'top-right',
+      timeout: 4000,
     });
   } finally {
-    isLoading.value = false;
+    loading.value = false;
   }
 }
 
-async function sendNoVisto() {
-  isLoading.value = true;
-  const ids = Object.keys(selected.value)
-    .filter((key) => selected.value[Number(key)])
-    .map(Number);
-  await service.marcarNoVisto(ids);
-  await loadPage();
-  isLoading.value = false;
+function onPaginationChanged(params: { pagination: { page: number; rowsPerPage: number } }) {
+  pagination.value.page = params.pagination.page;
+  paginaActual.value = params.pagination.page;
+  cargarIncidencias().catch(console.error);
 }
 
-async function enviarComite() {
-  isLoading.value = true;
-  const ids = Object.keys(selected.value)
-    .filter((key) => selected.value[Number(key)])
-    .map(Number);
-  await service.enviarComite(ids);
-  await loadPage();
-  isLoading.value = false;
-}
+onMounted(async () => {
+  await cargarIncidencias();
+});
 
-function handleCheckboxChange(id: number, checked: boolean) {
-  if (checked) {
-    selected.value[id] = true;
-  } else {
-    delete selected.value[id];
+async function marcarNoVisto(ids: number[]) {
+  $loader?.show('Marcando como no visto...', 'secondary');
+
+  loading.value = true;
+  try {
+    await incidenciaService.marcarNoVisto(ids);
+    await cargarIncidencias();
+  } catch (error) {
+    console.error('Error al marcar como no visto:', error);
+    Notify.create({
+      type: 'negative',
+      message: 'Error al marcar como no visto',
+      position: 'top-right',
+      timeout: 4000,
+    });
+  } finally {
+    loading.value = false;
   }
+  $loader?.hide();
+}
+
+async function marcarEnviadoComite(ids: number[]) {
+  $loader?.show('Marcando como enviado a comité técnico...', 'secondary');
+  loading.value = true;
+  try {
+    await incidenciaService.enviarComite(ids);
+    await cargarIncidencias();
+  } catch (error) {
+    console.error('Error al enviar a comité técnico:', error);
+    Notify.create({
+      type: 'negative',
+      message: 'Error al enviar a comité técnico',
+      position: 'top-right',
+      timeout: 4000,
+    });
+  } finally {
+    loading.value = false;
+  }
+  $loader?.hide();
 }
 
 async function verSancion(incidencia: Incidencia) {
   incidenciaStore.setIncidencia(incidencia);
   localStorage.setItem('incidencia', JSON.stringify(incidencia));
-  if (incidencia.sanciones && incidencia.sanciones.data && incidencia.sanciones.data.length > 0) {
-    localStorage.setItem('sanciones', JSON.stringify(incidencia.sanciones.data[0]));
-  } else {
-    localStorage.setItem('sanciones', JSON.stringify(null));
-  }
-  await router.push('/sanciones-juridico-crear');
+
+  const sancion = incidencia.sanciones?.data?.[0] ?? null;
+  localStorage.setItem('sanciones', JSON.stringify(sancion));
+
+  await router.push('/sancion/crear');
+}
+
+function abrirFormulario(incidencia: Incidencia) {
+  modalVer.value?.open(incidencia);
 }
 </script>
-<style scoped>
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); /* negro con transparencia */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-</style>
