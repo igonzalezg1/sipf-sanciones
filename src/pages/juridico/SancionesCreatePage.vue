@@ -525,8 +525,75 @@
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <!-- solicitud de amparo -->
+              <q-btn
+                v-if="puedeAgregarAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="agregar amparo"
+                icon="playlist_add"
+                @click="agregarAmparo"
+              />
+              <q-btn
+                v-if="puedeEditarAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar solicitud de amparo"
+                icon="visibility"
+                @click="editarAmparo"
+              />
+
+              <q-btn
+                v-if="puedeVerAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar solicitud de amparo"
+                icon="visibility"
+                @click="verAmparo"
+              />
+
+              <q-btn
+                v-if="puedeMandarComiteAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a comité técnico"
+                icon="visibility"
+                @click="enviarComiteTecnicoAmparo"
+              />
+              <!-- Resolucion de amparo -->
+              <q-btn
+                v-if="puedeAgregarResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Agregar resolución de amparo"
+                icon="playlist_add"
+                @click="agregarResolucionAmparo"
+              />
+              <q-btn
+                v-if="puedeEditarResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Editar resolución de amparo"
+                icon="visibility"
+                @click="editResolucionAmparo"
+              />
+              <q-btn
+                v-if="puedeVerResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Consultar resolución de amparo"
+                icon="visibility"
+                @click="verResolucionAmparo"
+              />
+
+              <q-btn
+                v-if="puedeMandarSeguridadAmparo(sancion)"
+                class="q-mx-lg"
+                color="primary"
+                label="Enviar a seguridad"
+                icon="visibility"
+                @click="enviarSeguridadAmparo"
+              />
             </q-card-section>
           </q-card>
 
@@ -591,6 +658,28 @@
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
+  <AgregarAmparoModal
+    v-model="amparoCreateModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <ShowEditAmparoModal
+    v-model="amparoEditModal"
+    :isReadonlyAmparo="isReadonlyAmparo"
+    @upload-success="actualizarInfo"
+  />
+
+  <AgregarResolucionAmparoModal
+    v-model="agregarResolucionAmparoM"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditResolucionAmparoModal
+    v-model="verditAmparoModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
 </template>
 
 <script setup lang="ts">
@@ -629,6 +718,17 @@ import {
   puedeVerResolucionApelacion,
   puedeMandarSeguridadApelacion,
 } from 'src/app/helpers/apelaciones/validaciones';
+
+import {
+  puedeAgregarAmparo,
+  puedeEditarAmparo,
+  puedeVerAmparo,
+  puedeMandarComiteAmparo,
+  puedeAgregarResolucionAmparo,
+  puedeEditarResolucionAmparo,
+  puedeVerResolucionAmparo,
+  puedeMandarSeguridadAmparo,
+} from 'src/app/helpers/amparo/validaciones';
 import { base64toBlob } from 'src/app/helpers/file-helper';
 // Componentes
 import InputText from 'src/shared/ui/InputText.vue';
@@ -639,18 +739,22 @@ import AgregarControversiaModal from './controversia/AgregarControversiaModal.vu
 import showEditcontroversiaModal from './controversia/ShowEditControversiaModal.vue';
 import AgregarSolicitudControversiaModal from './controversia/AgregarResolucionControversiaModal.vue';
 import ShowEditControversiaResolucionModal from './controversia/ShowEditResolucionControversiaModal.vue';
-
 import AgregarApelacionModal from './apelacion/AgregarApelacionModal.vue';
 import ShowEditApelacionModal from './apelacion/ShowEditApelacionModal.vue';
 import AgregarResolucionApelacionModal from './apelacion/AgregarResolucionApelacionModal.vue';
 import ShowEditResolucionApelacionModal from './apelacion/ShowEditResolucionApelacionModal.vue';
+import AgregarAmparoModal from './Amparo/AgregarAmparoModal.vue';
+import ShowEditAmparoModal from './Amparo/ShowEditAmparoModal.vue';
+import AgregarResolucionAmparoModal from './Amparo/AgregarResolucionAmparoModal.vue';
+import ShowEditResolucionAmparoModal from './Amparo/ShowEditResolucionAmparoModal.vue';
 // Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
 import { SancionesService } from 'src/app/services/sanciones/sancionesService';
 import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
+import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
+import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
-import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 // Stores
 const incidenciaStore = useIncidenciaStore();
 // Services
@@ -658,6 +762,7 @@ const sancionesService = new SancionesService();
 const tiposSancionService = new CatalogsService();
 const controversiaService = new ControversiaService();
 const apelacionService = new ApelacionService();
+const amparoService = new AmparoService();
 const router = useRouter();
 const $q = useQuasar();
 // Variables de modales
@@ -667,11 +772,14 @@ const controversiaCreateModal = ref(false);
 const controversiaEditModal = ref(false);
 const agregarResolucionControversiaM = ref(false);
 const verditcontroversiaModal = ref(false);
-
 const apelacionCreateModal = ref(false);
 const apelacionEditModal = ref(false);
 const agregarResolucionApelacionM = ref(false);
 const verditApelacionModal = ref(false);
+const amparoCreateModal = ref(false);
+const amparoEditModal = ref(false);
+const agregarResolucionAmparoM = ref(false);
+const verditAmparoModal = ref(false);
 // Variables
 const incidencia = ref(incidenciaStore.getIncidencia());
 const step = ref(1);
@@ -685,6 +793,8 @@ const isReadonlyControversia = ref(false);
 const isReadonlyResolucionControversia = ref(false);
 const isReadonlyApelacion = ref(false);
 const isReadonlyResolucionApelacion = ref(false);
+const isReadonlyAmparo = ref(false);
+const isReadonlyResolucionAmparo = ref(false);
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -890,6 +1000,35 @@ function verResolucionApelacion(): void {
   isReadonlyResolucionApelacion.value = true;
 }
 
+// Amparos
+function agregarAmparo(): void {
+  amparoCreateModal.value = true;
+}
+
+function editarAmparo(): void {
+  amparoEditModal.value = true;
+  isReadonlyAmparo.value = false;
+}
+
+function verAmparo(): void {
+  amparoEditModal.value = true;
+  isReadonlyAmparo.value = true;
+}
+
+function agregarResolucionAmparo(): void {
+  agregarResolucionAmparoM.value = true;
+}
+
+function editResolucionAmparo(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+function verResolucionAmparo(): void {
+  verditAmparoModal.value = true;
+  isReadonlyResolucionAmparo.value = true;
+}
+
 async function enviarComiteTecnico(): Promise<void> {
   const response = await controversiaService.enviarComiteTecnico(
     incidencia.value.id,
@@ -946,7 +1085,37 @@ async function enviarSeguridadApelacion(): Promise<void> {
 
   $q.notify({
     type: 'positive',
-    message: 'Controversia enviada a seguridad correctamente',
+    message: 'Apelacion enviada a seguridad correctamente',
+  });
+}
+
+async function enviarComiteTecnicoAmparo(): Promise<void> {
+  const response = await amparoService.enviarComiteTecnicoAmparo(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Sanción enviada a comité técnico correctamente',
+  });
+}
+
+async function enviarSeguridadAmparo(): Promise<void> {
+  const response = await amparoService.enviarSeguridadAmparo(
+    incidencia.value.id,
+    sancion.value?.id ?? null,
+  );
+
+  incidencia.value = response;
+  sancion.value = incidencia.value.sanciones.data[0];
+
+  $q.notify({
+    type: 'positive',
+    message: 'Amparo enviado a seguridad correctamente',
   });
 }
 </script>

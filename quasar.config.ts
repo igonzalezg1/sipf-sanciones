@@ -81,7 +81,7 @@ export default defineConfig((/* ctx */) => {
     devServer: {
       // https: true,
       port: 9000,
-      open: true, // opens browser window automatically
+      open: false, // opens browser window automatically
       proxy: {
         '/sipf/': {
           target: 'http://localhost:4200',
