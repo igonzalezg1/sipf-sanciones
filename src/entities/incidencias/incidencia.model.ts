@@ -1,4 +1,5 @@
 import type { ArticuloLey, LeyAplicable } from 'entities/catalogos/leyes.model';
+import type { SancionData } from 'entities/sancion/sancion.model';
 
 /**
  * Incidencia registrada dentro de un centro, asociada a una persona o situación particular.
@@ -40,6 +41,11 @@ export interface Incidencia {
   articulo: ArticuloLey;
   involucrados: { data: Involucrado[] };
   involucrados_para_sancion: { data: Involucrado[] };
+  sanciones?: {
+    data: SancionData[];
+  };
+  usuario_asigna?: string;
+  descripcion_completa?: string;
 }
 
 /**
