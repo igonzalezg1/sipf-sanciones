@@ -4,7 +4,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     persistent
   >
-    <q-card style="width: 700px">
+    <q-card style="width: 800px; max-width: 95vw">
       <q-card-section class="bg-primary text-white text-center tw-shadow-lg">
         <div class="text-h6">Subir acta de sanción</div>
       </q-card-section>

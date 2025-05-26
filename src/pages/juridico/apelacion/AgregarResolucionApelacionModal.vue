@@ -4,7 +4,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     persistent
   >
-    <q-card>
+    <q-card style="width: 800px; max-width: 95vw">
       <q-card-section class="text-center text-white bg-primary tw-shadow-lg">
         <div class="text-h6">Agregar resolucion de apelacion.</div>
       </q-card-section>

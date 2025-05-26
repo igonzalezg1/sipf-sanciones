@@ -1,6 +1,6 @@
 <template>
   <q-dialog :model-value="modelValue" persistent>
-    <q-card>
+    <q-card style="width: 800px; max-width: 95vw">
       <q-card-section class="q-pt-none">
         <div class="text-h6" v-if="props.readonly">Detalles de la sanción</div>
         <div class="text-h6" v-else>Detalles de la sanción</div>
