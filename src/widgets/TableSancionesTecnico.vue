@@ -2,35 +2,6 @@
   <div class="q-pa-md relative overflow-x-auto">
     <div class="row items-center justify-between q-mb-md">
       <q-input v-model="search" label="Buscar..." dense filled debounce="300" />
-      <div>
-        <q-btn
-          color="secondary"
-          label="Marcar sanciones a no visto (por comite)"
-          v-permiso="'juridico-sanciones.crear'"
-          icon="visibility_off"
-          class="q-mr-sm"
-          :disable="selected.length === 0"
-          @click="
-            $emit(
-              'sendNoVisto',
-              selected.map((s) => s.id),
-            )
-          "
-        />
-        <q-btn
-          color="primary"
-          label="Marcar enviado a comite tecnico"
-          v-permiso="'juridico-sanciones.crear'"
-          icon="send"
-          :disable="selected.length === 0"
-          @click="
-            $emit(
-              'enviarComite',
-              selected.map((s) => s.id),
-            )
-          "
-        />
-      </div>
     </div>
 
     <!-- Tabla con scroll horizontal -->
@@ -61,7 +32,7 @@
         <q-checkbox
           v-model="headerCheckbox"
           color="secondary"
-          :disable="!haySeleccionables"
+          :disable="esSoloLectura || !haySeleccionables"
           @update:model-value="toggleSeleccionMasiva"
         />
       </template>
@@ -84,8 +55,10 @@
         >
           <q-tooltip>No vista por comité técnico</q-tooltip>
         </q-icon>
+
+        <!-- Solo se puede seleccionar si no es solo lectura -->
         <q-checkbox
-          v-else
+          v-else-if="!esSoloLectura"
           v-model="props.selected"
           color="secondary"
           @update:model-value="() => (props as any)['__qtable_toggleSelect']?.(props.row)"
@@ -147,15 +120,11 @@ const pagination = ref({
 });
 const separator = 'horizontal';
 
-const props = defineProps<{ rows: Incidencia[]; permisos: string[] }>();
+const props = defineProps<{ rows: Incidencia[]; permisos: string[]; esSoloLectura?: boolean }>();
 const permisos = props.permisos ?? [];
 
 const selected = ref<Incidencia[]>([]);
-const emit = defineEmits<{
-  (e: 'sendNoVisto', ids: number[]): void;
-  (e: 'enviarComite', ids: number[]): void;
-  (e: 'ver' | 'sancion' | 'proceso', incidencia: Incidencia): void;
-}>();
+const emit = defineEmits<(e: 'ver' | 'sancion' | 'proceso', incidencia: Incidencia) => void>();
 
 const headerCheckbox = ref(false);
 
@@ -306,31 +275,6 @@ function getAcciones(row: Incidencia) {
   // Si fue enviada pero NO confirmada → solo Ver
   if (row.enviado && !row.confirmada_por_comite_tecnico) {
     return acciones;
-  }
-
-  // Si fue confirmada por comité técnico → Ver + Crear Sanción
-  if (row.confirmada_por_comite_tecnico) {
-    if (tienePermiso('juridico-sanciones.crear')) {
-      acciones.push({
-        label: 'Crear Sanción',
-        icon: 'gavel',
-        color: 'brown-7',
-        emit: 'sancion',
-        permiso: 'juridico-sanciones.crear',
-      });
-    }
-    return acciones;
-  }
-
-  // Si no ha sido enviada ni confirmada, ni tiene sin efecto → Sanción + Proceso
-  if (tienePermiso('juridico-sanciones.crear')) {
-    acciones.push({
-      label: 'Crear Sanción',
-      icon: 'gavel',
-      color: 'brown-7',
-      emit: 'sancion',
-      permiso: 'juridico-sanciones.crear',
-    });
   }
 
   if (tienePermiso('juridico-sanciones.detalle')) {
