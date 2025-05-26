@@ -1,7 +1,7 @@
 <template>
-  <div class="row" v-if="!sancion">
+  <div class="row q-pa-md" v-if="!sancion">
     <div class="col-12">
-      <form>
+      <q-form ref="formulario">
         <div class="row q-mx-md">
           <div class="col-12">
             <p class="tw-text-2xl">INCIDENCIA</p>
@@ -54,8 +54,9 @@
             <select-custom
               v-model="dataForm.tipo_sancion_id"
               :options="tiposSancion"
-              label="Tipo de sanción"
+              label="Tipo de sanción *"
               clearable
+              :rules="sancionValidator.tipo_sancion_id"
               class="q-ma-md"
             >
               <template #prepend>
@@ -64,9 +65,10 @@
             </select-custom>
             <input-text
               v-model="dataForm.fecha_registro"
-              label="Fecha sesión de comite técnico"
               clearable
               type="date"
+              label="Fecha sesión de comité técnico *"
+              :rules="sancionValidator.fecha_registro"
               class="q-ma-md"
             >
               <template #prepend>
@@ -75,9 +77,10 @@
             </input-text>
             <input-text
               v-model="dataForm.fecha_hora_inicio_sancion"
-              label="Fecha inicio de sanción"
+              label="Fecha inicio de sanción *"
               clearable
               type="date"
+              :rules="sancionValidator.fecha_hora_inicio_sancion"
               class="q-ma-md"
               readonly
             >
@@ -90,6 +93,7 @@
               label="Observaciones de la sanción"
               clearable
               type="textarea"
+              :rules="sancionValidator.observaciones"
               class="q-ma-md"
             >
               <template #prepend>
@@ -100,9 +104,10 @@
           <div class="col-6">
             <input-text
               v-model="dataForm.no_sesion_comite"
-              label="No de sesión de comite técnico"
+              label="No de sesión de comite técnico *"
               clearable
               type="text"
+              :rules="sancionValidator.no_sesion_comite"
               class="q-ma-md"
             >
               <template #prepend>
@@ -111,9 +116,11 @@
             </input-text>
             <input-text
               v-model="dataForm.dias_sancion"
-              label="Días de sanción"
+              label="Días de sanción *"
               clearable
               type="number"
+              :readonly="dataForm.fecha_registro == ''"
+              :rules="sancionValidator.dias_sancion"
               class="q-ma-md"
             >
               <template #prepend>
@@ -122,9 +129,10 @@
             </input-text>
             <input-text
               v-model="dataForm.fecha_hora_fin_sancion"
-              label="Fecha fin de sanción"
+              label="Fecha fin de sanción *"
               readonly
               type="date"
+              :rules="sancionValidator.fecha_hora_fin_sancion"
               class="q-ma-md"
             >
               <template #prepend>
@@ -133,9 +141,10 @@
             </input-text>
             <input-text
               v-model="dataForm.descripcion"
-              label="Descripción de la sanción"
+              label="Descripción de la sanción *"
               clearable
               type="textarea"
+              :rules="sancionValidator.descripcion"
               class="q-ma-md"
             >
               <template #prepend>
@@ -177,9 +186,10 @@
           <div class="col-3">
             <input-text
               v-model="dataForm.firmante_1_nombre"
-              label="Nombre del firmante 1"
+              label="Nombre del firmante 1 *"
               clearable
               type="text"
+              :rules="sancionValidator.firmante_1_nombre"
               class="q-ma-md"
             >
             </input-text>
@@ -187,9 +197,10 @@
           <div class="col-3">
             <input-text
               v-model="dataForm.firmante_1_cargo"
-              label="Cargo del firmante 1"
+              label="Cargo del firmante 1 *"
               clearable
               type="text"
+              :rules="sancionValidator.firmante_1_cargo"
               class="q-ma-md"
             >
             </input-text>
@@ -200,6 +211,7 @@
               label="Nombre del firmante 2"
               clearable
               type="text"
+              :rules="sancionValidator.firmante_2_nombre"
               class="q-ma-md"
             >
             </input-text>
@@ -210,12 +222,13 @@
               label="Cargo del firmante 2"
               clearable
               type="text"
+              :rules="sancionValidator.firmante_2_cargo"
               class="q-ma-md"
             >
             </input-text>
           </div>
         </div>
-      </form>
+      </q-form>
     </div>
     <div class="col-12">
       <q-btn
@@ -755,6 +768,8 @@ import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 // Stores
 import { useIncidenciaStore } from 'stores/incidencias';
+// Validators
+import sancionValidator from 'src/app/validators/sancion/create.validator';
 // Stores
 const incidenciaStore = useIncidenciaStore();
 // Services
@@ -795,6 +810,7 @@ const isReadonlyApelacion = ref(false);
 const isReadonlyResolucionApelacion = ref(false);
 const isReadonlyAmparo = ref(false);
 const isReadonlyResolucionAmparo = ref(false);
+const formulario = ref();
 
 const dataForm = ref<SancionCreate>({
   tipo_sancion_id: 0,
@@ -837,14 +853,32 @@ watch(
   () => Number(dataForm.value.dias_sancion),
   (newValue: number) => {
     if (isNaN(newValue) || !dataForm.value.fecha_registro) return;
-    const fechaInicio = new Date(dataForm.value.fecha_registro);
-    fechaInicio.setDate(fechaInicio.getDate() + 3);
+
+    const fechaRegistro = new Date(dataForm.value.fecha_registro);
+
+    const fechaInicio = sumarDiasHabiles(fechaRegistro, 3);
     dataForm.value.fecha_hora_inicio_sancion = fechaInicio.toISOString().substring(0, 10);
+
     const fechaFin = new Date(fechaInicio);
     fechaFin.setDate(fechaFin.getDate() + newValue);
     dataForm.value.fecha_hora_fin_sancion = fechaFin.toISOString().substring(0, 10);
   },
 );
+
+function sumarDiasHabiles(fecha: Date, cantidad: number): Date {
+  const resultado = new Date(fecha);
+  let diasSumados = 0;
+
+  while (diasSumados < cantidad) {
+    resultado.setDate(resultado.getDate() + 1);
+    const dia = resultado.getDay();
+    if (dia !== 0 && dia !== 6) {
+      diasSumados++;
+    }
+  }
+
+  return resultado;
+}
 
 /**
  * Funcion para obtener el id de la sancion
@@ -865,33 +899,43 @@ function handleCheckboxChange(id: number, checked: boolean): void {
  * @returns
  */
 async function guardarSancion(): Promise<void> {
-  const payload = dataForm.value;
-  payload.centro_id = incidencia.value.centro_id;
+  await formulario.value.validate().then(async (exito: boolean) => {
+    if (exito) {
+      const payload = dataForm.value;
+      payload.centro_id = incidencia.value.centro_id;
 
-  Object.entries(selected.value).forEach(([id, isSelected]) => {
-    if (isSelected) {
-      involucradosSelected.value.push({
-        incidente_id: incidenciaStore.getIncidencia().id,
-        incidente_involucrados_id: id,
-        sancion_id: 0,
-        id: 0,
-        involucrado_incidente: id,
+      Object.entries(selected.value).forEach(([id, isSelected]) => {
+        if (isSelected) {
+          involucradosSelected.value.push({
+            incidente_id: incidenciaStore.getIncidencia().id,
+            incidente_involucrados_id: id,
+            sancion_id: 0,
+            id: 0,
+            involucrado_incidente: id,
+          });
+        }
       });
+
+      payload.involucrados = JSON.stringify({ data: involucradosSelected.value });
+
+      const response = await sancionesService.agregarSancion(payload);
+      if (response !== null) {
+        $q.notify({
+          type: 'positive',
+          message: 'Sanción guardada correctamente',
+        });
+        await router.push({
+          path: '/juridico',
+        });
+      }
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'Por favor, completa todos los campos requeridos.',
+      });
+      return;
     }
   });
-
-  payload.involucrados = JSON.stringify({ data: involucradosSelected.value });
-
-  const response = await sancionesService.agregarSancion(payload);
-  if (response !== null) {
-    $q.notify({
-      type: 'positive',
-      message: 'Sanción guardada correctamente',
-    });
-    await router.push({
-      path: '/sanciones-juridico',
-    });
-  }
 }
 
 /**

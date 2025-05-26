@@ -15,6 +15,7 @@
     :hint="hint"
     :clearable="clearable"
     use-input
+    hide-bottom-space
     emit-value
     map-options
     class="tw-shadow-md tw-rounded-lg tw-bg-white tw-text-gray-800 tw-border tw-border-gray-300 focus:tw-ring-2 focus:tw-ring-primary focus:tw-border-primary tw-transition-all tw-duration-150"

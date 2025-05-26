@@ -12,8 +12,10 @@
     :placeholder="placeholder"
     :autofocus="autofocus"
     :rules="rules"
+    :label-html="labelHtml"
     :mask="mask"
     :suffix="suffix"
+    hide-bottom-space
     :hint="hint"
     :clearable="clearable"
     :debounce="debounce"
@@ -59,6 +61,10 @@ const props = defineProps({
     default: 'text',
   },
   label: String,
+  labelHtml: {
+    type: Boolean,
+    default: false,
+  },
   dense: {
     type: Boolean,
     default: true,
