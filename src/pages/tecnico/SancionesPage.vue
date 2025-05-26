@@ -1,152 +1,117 @@
 <template>
-  <div v-if="isLoading" class="loading-overlay">
-    <q-spinner-gears color="primary" size="10em" />
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <p class="text-xl text-center">LISTA DE INCIDENCIAS</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <q-input filled v-model="search" label="Buscar" class="q-my-md" />
-      <q-btn color="primary" label="Buscar" class="q-my-md" @click="loadPage" />
-    </div>
-  </div>
-  <div class="row" v-if="!isLoading">
-    <div class="col-12">
-      <table class="q-table">
-        <thead class="text-center bg-primary text-white">
-          <tr>
-            <th class="text-left">Folio</th>
-            <th class="text-left">Fecha y hora</th>
-            <th class="text-left">Tipo de incidencia</th>
-            <th class="text-left">Personal que custodia</th>
-            <th class="text-left">Cargo del personal</th>
-            <th class="text-left">Estatus de incidencia</th>
-            <th class="text-left">Acciones</th>
-          </tr>
-        </thead>
-        <tbody v-if="data.length > 0">
-          <tr v-for="(incidencia, index) in data" :key="index">
-            <td>{{ incidencia.folio }}</td>
-            <td>{{ incidencia.fecha_hora_registro }}</td>
-            <td>{{ incidencia.tipo_incidente_descripcion }}</td>
-            <td>{{ incidencia.persona_registra }}</td>
-            <td>{{ incidencia.persona_registra_cargo }}</td>
-            <td>{{ incidencia.estatus }}</td>
-            <td>
-              <q-btn color="secondary" icon="visibility">
-                <q-tooltip class="bg-secondary">Ver incidencia</q-tooltip>
-              </q-btn>
-              <q-btn color="secondary" icon="import_contacts" to="/sanciones-tecnico-crear">
-                <q-tooltip class="bg-secondary">Ver sancion</q-tooltip>
-              </q-btn>
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
-          <tr>
-            <td colspan="8" class="text-center">No hay datos disponibles</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="q-pa-md">
+    <SancionesTable
+      :permisos="sessionStore.permisos ?? []"
+      :rows="incidencias"
+      :pagination="pagination"
+      :esSoloLectura="true"
+      @sancion="verSancion"
+      @ver="abrirFormulario"
+      @request="(params: any) => onPaginationChanged(params)"
+    />
 
-      <q-pagination
-        v-model="page"
-        :max="pagination.total_pages"
-        :max-pages="5"
-        boundary-numbers
-        direction-links
-        class="q-mt-md full-width flex justify-center"
-        color="primary"
-        @update:model-value="loadPage"
-      />
-    </div>
+    <IncidenciaShowModal ref="modalVer" />
   </div>
 </template>
 
 <script setup lang="ts">
-// Imports
+import { Notify } from 'quasar';
 import { ref, onMounted } from 'vue';
-import { IncidenciasService } from 'src/app/services/sanciones/IncidenciasService';
-import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import SancionesTable from 'src/widgets/TableSancionesTecnico.vue';
+import type { PaginatedResponse } from 'src/app/services/baseService';
+import { useSessionStore } from 'src/stores/session';
+import { useIncidenciaStore } from 'src/stores/incidencias';
+import { IncidenciaService } from 'src/app/services/IncidenciaService';
 import type { Incidencia } from 'entities/incidente/incidente.model';
+import IncidenciaShowModal from 'src/features/incidencias/show/IncidenciaShowModal.vue';
 
-// Variables
-const isLoading = ref(true);
-const service = new IncidenciasService();
-const page = ref(1);
-const $q = useQuasar();
-const data = ref<Incidencia[]>([]);
-const pagination = ref();
-const search = ref('');
-const scope = ref({});
+const sessionStore = useSessionStore();
+const incidenciaStore = useIncidenciaStore();
+const incidenciaService = new IncidenciaService(sessionStore.token);
+const router = useRouter();
+const modalVer = ref();
 
-// Funciones
-onMounted(async () => {
-  try {
-    scope.value = {
-      porCentro: 1,
-      // rutaAccesso: 'tecnico-sanciones',
-    };
-    const include = `sanciones,involucrados_para_sancion`;
-    const response = await service.getIncidencias(include, scope.value);
-    if (response?.data) {
-      data.value = response.data;
-    }
-    pagination.value = response?.meta.pagination;
-  } catch (error: unknown) {
-    let message = 'Error inesperado';
-    if (error instanceof Error) {
-      message = error.message;
-    }
-
-    $q.notify({
-      type: 'negative',
-      message,
-    });
-  } finally {
-    isLoading.value = false;
-  }
+const loading = ref(false);
+const paginaActual = ref(1);
+const incidencias = ref<Incidencia[]>([]);
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 10,
+  rowsNumber: 0,
 });
 
-async function loadPage() {
-  isLoading.value = true;
+/**
+ * Carga la lista de incidencias desde el backend con paginación.
+ */
+async function cargarIncidencias(goToFirstPage = false) {
+  if (goToFirstPage) {
+    paginaActual.value = 1;
+    pagination.value.page = 1;
+  }
+
+  loading.value = true;
+
+  const persona = sessionStore.persona;
+  const expediente = sessionStore.expediente;
+
+  const params: Record<string, unknown> = {};
+
+  if (persona?.id && expediente?.id) {
+    params.scope = { porExpedienteEnviado: expediente.id };
+    params.include = `sanciones:persona_id(${persona.id}),involucrados_para_sancion`;
+  } else {
+    params.scope = { porCentro: sessionStore.centro?.id ?? 0 };
+    params.include = 'sanciones,involucrados_para_sancion';
+  }
+
   try {
-    // TODO: Cambiar por el id del centro
-    scope.value = {
-      porCentro: 1,
-      // rutaAccesso: 'tecnico-sanciones',
-    };
-    const include = `sanciones,involucrados_para_sancion`;
-    const response = await service.getIncidencias(include, scope.value);
-    if (response?.data) {
-      data.value = response.data;
+    const response: PaginatedResponse<Incidencia> | null =
+      await incidenciaService.getIncidenciasPaginadas(paginaActual.value, params);
+
+    if (response) {
+      incidencias.value = response.data;
+      pagination.value = {
+        ...pagination.value,
+        page: response.meta.pagination.current_page,
+        rowsPerPage: response.meta.pagination.per_page,
+        rowsNumber: response.meta.pagination.total,
+      };
     }
-    pagination.value = response?.meta.pagination;
-    page.value = pagination.value.current_page;
   } catch (error) {
-    $q.notify({
+    console.error('Error al cargar incidencias:', error);
+    Notify.create({
       type: 'negative',
-      message: (error as Error).message,
+      message: 'Error al cargar las incidencias',
+      position: 'top-right',
+      timeout: 4000,
     });
   } finally {
-    isLoading.value = false;
+    loading.value = false;
   }
 }
-</script>
-<style scoped>
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4); /* negro con transparencia */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+
+function onPaginationChanged(params: { pagination: { page: number; rowsPerPage: number } }) {
+  pagination.value.page = params.pagination.page;
+  paginaActual.value = params.pagination.page;
+  cargarIncidencias().catch(console.error);
 }
-</style>
+
+onMounted(async () => {
+  await cargarIncidencias();
+});
+
+async function verSancion(incidencia: Incidencia) {
+  incidenciaStore.setIncidencia(incidencia);
+  localStorage.setItem('incidencia', JSON.stringify(incidencia));
+
+  const sancion = incidencia.sanciones?.data?.[0] ?? null;
+  localStorage.setItem('sanciones', JSON.stringify(sancion));
+
+  await router.push('/sancion/crear');
+}
+
+function abrirFormulario(incidencia: Incidencia) {
+  modalVer.value?.open(incidencia);
+}
+</script>
