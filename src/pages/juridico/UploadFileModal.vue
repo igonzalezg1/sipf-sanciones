@@ -75,7 +75,7 @@ const emit = defineEmits<{
 const $q = useQuasar();
 
 const uploadUrl = computed(() => {
-  return `${import.meta.env.VITE_APP_API_URL}/tecnico/seguridad/sanciones/${props.sancionId}/registro-fisico`;
+  return `${urlAmbiente()}/tecnico/seguridad/sanciones/${props.sancionId}/registro-fisico`;
 });
 
 const formFields = computed(() => [
@@ -130,5 +130,29 @@ const onUploadFailed = (info: { files: readonly File[]; xhr: XMLHttpRequest }) =
     message: 'Error al subir el archivo',
     caption: info.xhr.response ? JSON.parse(info.xhr.response).message : 'Error desconocido',
   });
+};
+
+const urlAmbiente = () => {
+  const ambiente = import.meta.env.VITE_APP_ENV;
+  let baseURL;
+  switch (ambiente) {
+    case 'LOCAL':
+      baseURL = import.meta.env.VITE_APP_API_URL_LOCAL;
+      break;
+    case 'TEST':
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      break;
+    case 'QA':
+      baseURL = import.meta.env.VITE_APP_API_URL_QA;
+      break;
+    case 'PROD':
+      baseURL = import.meta.env.VITE_APP_API_URL_PROD;
+      break;
+    default:
+      console.warn('Ambiente no reconocido, usando URL base por defecto.');
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+  }
+
+  return baseURL;
 };
 </script>

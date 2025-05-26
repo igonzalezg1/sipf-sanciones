@@ -10,6 +10,17 @@ export interface SancionData {
   id: number;
   tipo_sancion_id: number;
   folio: string;
+  no_sesion_comite: string | null;
+  fecha_hora_inicio_sancion: string | null;
+  fecha_hora_fin_sancion: string | null;
+  dias_sancion: string | null;
+  observaciones: string | null;
+  firmante_1_nombre: string | null;
+  firmante_1_cargo: string | null;
+  firmante_2_nombre: string | null;
+  firmante_2_cargo: string | null;
+  centro_id: number | null;
+  involucrados: string | null;
   tipo_sancion_nombre: string;
   tipo_sancion_descripcion: string;
   tipo_sancion: { label: string; value: number };

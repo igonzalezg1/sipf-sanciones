@@ -8,6 +8,10 @@ export class SancionesService extends BaseService {
     return this.post(`${this.baseUrl}`, payload);
   }
 
+  async editarSancion(id: number, payload: SancionCreate): Promise<unknown> {
+    return this.put(`${this.baseUrl}/${id}`, payload);
+  }
+
   async generarPdf(id?: number): Promise<{ base64Pdf: string } | null> {
     return this.get(`${this.baseUrl}/${id}/pdf`);
   }

@@ -161,7 +161,7 @@
                 <th>#</th>
                 <th>PPL</th>
                 <th>Expediente</th>
-                <th>Tipo de participación</th>
+                <th>Fecha ingreso</th>
                 <th></th>
               </tr>
             </thead>
@@ -170,7 +170,7 @@
                 <td>{{ index + 1 }}</td>
                 <td>{{ involucrado.nombre_completo }}</td>
                 <td>{{ involucrado.identificador }}</td>
-                <td>{{ involucrado.tipo_participacion?.label }}</td>
+                <td>{{ involucrado.fecha_ingreso }}</td>
                 <td>
                   <q-checkbox
                     color="secondary"
@@ -241,7 +241,7 @@
       />
     </div>
   </div>
-  <div class="row" v-if="sancion">
+  <div class="row q-pa-md" v-if="sancion">
     <div class="col-12">
       <p class="tw-text-2xl">SANCION</p>
       <p class="tw-text-md">Fecha sesión de comite técnico: {{ sancion.fecha_registro }}</p>
@@ -967,7 +967,7 @@ function actualizarInfo(): void {
  * @returns
  */
 function getPdfUploaded(): void {
-  const fileUrl = `${import.meta.env.VITE_API_STORAGE_URL}${sancion.value?.sancion_file}`;
+  const fileUrl = `${urlAmbiente()}${sancion.value?.sancion_file}`;
   window.open(fileUrl, '_blank');
 }
 
@@ -979,7 +979,7 @@ async function mandarSeguridad(): Promise<void> {
   const response = await sancionesService.mandarSeguridad(sancion.value?.id);
   if (response) {
     await router.push({
-      path: '/sanciones-juridico',
+      path: '/juridico',
     });
     $q.notify({
       type: 'positive',
@@ -987,6 +987,30 @@ async function mandarSeguridad(): Promise<void> {
     });
   }
 }
+
+const urlAmbiente = () => {
+  const ambiente = import.meta.env.VITE_APP_ENV;
+  let baseURL;
+  switch (ambiente) {
+    case 'LOCAL':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_LOCAL;
+      break;
+    case 'TEST':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_TEST;
+      break;
+    case 'QA':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_QA;
+      break;
+    case 'PROD':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_PROD;
+      break;
+    default:
+      console.warn('Ambiente no reconocido, usando URL base por defecto.');
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+  }
+
+  return baseURL;
+};
 
 function agregarControversia(): void {
   controversiaCreateModal.value = true;
