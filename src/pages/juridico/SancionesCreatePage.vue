@@ -1106,6 +1106,10 @@ async function enviarComiteTecnico(): Promise<void> {
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
 
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
+
   $q.notify({
     type: 'positive',
     message: 'Sanción enviada a comité técnico correctamente',
@@ -1120,6 +1124,10 @@ async function enviarSeguridadControversia(): Promise<void> {
 
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
+
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
 
   $q.notify({
     type: 'positive',
@@ -1136,6 +1144,10 @@ async function enviarComiteTecnicoApelacion(): Promise<void> {
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
 
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
+
   $q.notify({
     type: 'positive',
     message: 'Sanción enviada a comité técnico correctamente',
@@ -1150,6 +1162,10 @@ async function enviarSeguridadApelacion(): Promise<void> {
 
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
+
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
 
   $q.notify({
     type: 'positive',
@@ -1166,6 +1182,10 @@ async function enviarComiteTecnicoAmparo(): Promise<void> {
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
 
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
+
   $q.notify({
     type: 'positive',
     message: 'Sanción enviada a comité técnico correctamente',
@@ -1180,6 +1200,10 @@ async function enviarSeguridadAmparo(): Promise<void> {
 
   incidencia.value = response;
   sancion.value = incidencia.value.sanciones.data[0];
+
+  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
+  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
+  window.location.reload();
 
   $q.notify({
     type: 'positive',
