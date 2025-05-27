@@ -39,4 +39,12 @@ export interface Incidencia {
   estatus: string;
   usuario_asigna?: string;
   descripcion_completa?: string;
+  articulo: Articulo | null;
+}
+
+export interface Articulo {
+  id: number;
+  descripcion: string;
+  ley_aplicable_id: number;
+  regla: string | null;
 }

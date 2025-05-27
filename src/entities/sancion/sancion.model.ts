@@ -48,7 +48,7 @@ export interface SancionData {
 }
 
 export interface SancionCreate {
-  tipo_sancion_id: number;
+  tipo_sancion_id: number | null;
   no_sesion_comite: string | null;
   fecha_registro: string | null;
   fecha_hora_inicio_sancion: string | null;

@@ -11,14 +11,14 @@
 
       <q-card-section>
         <div class="q-mb-md">
-          <q-input
+          <input-text
             filled
             label="Tipo de Sanción"
             readonly
             v-model="sancion.descripcion"
             class="q-my-md"
           />
-          <q-input
+          <input-text
             filled
             label="Descripción de sanción"
             readonly
@@ -41,7 +41,7 @@
           :auto-upload="false"
           field-name="sancion_file"
           :form-fields="formFields"
-          class="q-mt-md tw-w-full"
+          class="q-mt-md tw-w-96 text-center"
         />
       </q-card-section>
 
@@ -57,6 +57,7 @@ import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
 import { useSessionStore } from 'src/stores/session';
+import InputText from 'src/shared/ui/InputText.vue';
 
 const sessionStore = useSessionStore();
 const token = sessionStore.token;

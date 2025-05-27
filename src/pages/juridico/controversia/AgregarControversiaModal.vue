@@ -145,7 +145,7 @@
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
-              class="q-mx-md tw-w-full"
+              class="q-mx-md tw-w-96 text-center"
             />
             <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
               <q-card-section>

@@ -813,7 +813,7 @@ const isReadonlyResolucionAmparo = ref(false);
 const formulario = ref();
 
 const dataForm = ref<SancionCreate>({
-  tipo_sancion_id: 0,
+  tipo_sancion_id: null,
   no_sesion_comite: '',
   fecha_registro: '',
   fecha_hora_inicio_sancion: '',
@@ -838,7 +838,10 @@ onMounted(async (): Promise<void> => {
     sancion.value = incidencia.value.sanciones.data[0];
   }
 
-  tiposSancionResponse.value = await tiposSancionService.getTiposSancion();
+  tiposSancionResponse.value = await tiposSancionService.getTiposSancion(
+    incidencia.value.articulo?.id || 0,
+  );
+  console.log('Tipos de sanción', tiposSancionResponse.value);
   if (tiposSancionResponse.value) {
     tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
       label: tipo.descripcion,

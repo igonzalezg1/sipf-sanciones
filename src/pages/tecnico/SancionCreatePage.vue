@@ -333,7 +333,9 @@ onMounted(async () => {
     sancionId.value = 0;
   }
 
-  tiposSancionResponse.value = await tiposSancionService.getTiposSancion();
+  tiposSancionResponse.value = await tiposSancionService.getTiposSancion(
+    incidencia.value.articulo?.id || 0,
+  );
   if (tiposSancionResponse.value) {
     tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
       label: tipo.descripcion,
