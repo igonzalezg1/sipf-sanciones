@@ -45,7 +45,7 @@
       <q-card-section>
         <div class="q-mb-md">
           <q-banner
-            v-if="mostrarBanner"
+            v-if="mostrarBanner && !props.isReadonlyControversia"
             dense
             class="tw-bg-amber-400 text-white relative-position q-pa-md"
             style="padding-right: 3rem"
@@ -357,6 +357,8 @@ const saveInfo = async () => {
         );
 
         incidenciaStore.setIncidencia(response);
+        localStorage.removeItem('archivo');
+        localStorage.setItem('sanciones', JSON.stringify(response));
         emit('upload-success');
         closeModal();
         $q.notify({

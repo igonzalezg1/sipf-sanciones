@@ -49,6 +49,7 @@
               v-model="formData.fecha_resolucion"
               label="Fecha de resolución de controversia"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="date"
               class="q-ma-md"
             >
@@ -61,6 +62,7 @@
               v-model="formData.fecha_inicio_sancion"
               label="Fecha de inicio de la sanción"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="date"
               class="q-ma-md"
             >
@@ -73,6 +75,7 @@
               v-model="formData.fecha_fin_sancion"
               label="Fecha fin de la sanción"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="date"
               class="q-ma-md"
             >
@@ -85,6 +88,7 @@
               v-model="formData.fecha_suspencion"
               label="Fecha de suspencion de la sanción"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="date"
               class="q-ma-md"
             >
@@ -97,6 +101,7 @@
               v-model="formData.observaciones_resolucion"
               label="Observaciones de la controversia"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="textarea"
               class="q-ma-md"
             >
@@ -109,6 +114,7 @@
               v-model="formData.resolucion_juez"
               label="Resolución  del Juez"
               clearable
+              :readonly="props.isReadonlyShowControversia"
               type="textarea"
               class="q-ma-md"
             >
@@ -133,6 +139,7 @@
               field-name="file"
               :form-fields="formFields"
               class="q-mx-md tw-w-96 text-center"
+              :readonly="props.isReadonlyShowControversia"
             />
             <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
               <q-card-section>
@@ -151,7 +158,13 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
+        <q-btn
+          flat
+          label="Guardar"
+          v-if="!isReadonlyShowControversia"
+          color="primary"
+          @click="saveInfo"
+        />
         <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
       </q-card-actions>
     </q-card>
@@ -182,6 +195,7 @@ const emit = defineEmits<{
 }>();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
+  isReadonlyShowControversia: { type: Boolean, required: true },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel

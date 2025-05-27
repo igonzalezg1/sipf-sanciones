@@ -645,6 +645,7 @@
 
   <ShowEditControversiaResolucionModal
     v-model="verditcontroversiaModal"
+    :isReadonlyShowControversia="isReadonlyResolucionControversia"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
@@ -1035,7 +1036,7 @@ function agregarResolucionControversia(): void {
 
 function editResolucionControversia(): void {
   verditcontroversiaModal.value = true;
-  isReadonlyResolucionControversia.value = true;
+  isReadonlyResolucionControversia.value = false;
 }
 
 function verResolucionControversia(): void {
