@@ -63,6 +63,7 @@
                     clearable
                     type="text"
                     :rules="sancionValidator.no_sesion_comite"
+                    :readonly="props.readonly"
                     class="q-ma-md"
                   >
                     <template #prepend>
@@ -75,6 +76,7 @@
                     label="Tipo de sanción *"
                     clearable
                     :rules="sancionValidator.tipo_sancion_id"
+                    :readonly="props.readonly"
                     class="q-ma-md"
                   >
                     <template #prepend>
@@ -87,6 +89,7 @@
                     type="date"
                     label="Fecha sesión de comité técnico *"
                     :rules="sancionValidator.fecha_registro"
+                    :readonly="props.readonly"
                     class="q-ma-md"
                   >
                     <template #prepend>
@@ -135,7 +138,7 @@
                     v-model="dataForm.descripcion"
                     label="Descripción de la sanción *"
                     clearable
-                    :required="props.readonly"
+                    :readonly="props.readonly"
                     type="textarea"
                     :rules="sancionValidator.descripcion"
                     class="q-ma-md"
@@ -148,7 +151,7 @@
                     v-model="dataForm.observaciones"
                     label="Observaciones de la sanción"
                     clearable
-                    :required="readonly"
+                    :readonly="readonly"
                     type="textarea"
                     :rules="sancionValidator.observaciones"
                     class="q-ma-md"
@@ -194,7 +197,7 @@
                     v-model="dataForm.firmante_1_nombre"
                     label="Nombre del firmante 1 *"
                     clearable
-                    :required="readonly"
+                    :readonly="readonly"
                     type="text"
                     :rules="sancionValidator.firmante_1_nombre"
                     class="q-ma-md"
@@ -204,7 +207,7 @@
                     v-model="dataForm.firmante_1_cargo"
                     label="Cargo del firmante 1 *"
                     clearable
-                    :required="readonly"
+                    :readonly="readonly"
                     type="text"
                     :rules="sancionValidator.firmante_1_cargo"
                     class="q-ma-md"
@@ -216,7 +219,7 @@
                     v-model="dataForm.firmante_2_nombre"
                     label="Nombre del firmante 2"
                     clearable
-                    :required="readonly"
+                    :readonly="readonly"
                     type="text"
                     :rules="sancionValidator.firmante_2_nombre"
                     class="q-ma-md"
@@ -226,7 +229,7 @@
                     v-model="dataForm.firmante_2_cargo"
                     label="Cargo del firmante 2"
                     clearable
-                    :required="readonly"
+                    :readonly="readonly"
                     type="text"
                     :rules="sancionValidator.firmante_2_cargo"
                     class="q-ma-md"

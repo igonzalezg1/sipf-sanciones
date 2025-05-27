@@ -74,6 +74,7 @@
               label="cuando aplica la controversia *"
               clearable
               :rules="EditValidator.cuando_aplica"
+              :readonly="props.isReadonlyControversia"
               class="q-ma-md"
             >
               <template #prepend>
@@ -85,6 +86,7 @@
               label="Fecha de admisión de controversia *"
               clearable
               :rules="EditValidator.fecha_solicitud"
+              :readonly="props.isReadonlyControversia"
               type="date"
               class="q-ma-md"
             >
@@ -98,6 +100,7 @@
               placeholder="Escribe el número de sesión *"
               clearable
               :rules="EditValidator.numero_sesion"
+              :readonly="props.isReadonlyControversia"
               class="q-ma-md"
               type="text"
             >
@@ -111,6 +114,7 @@
               placeholder="Escribe el Órgano jurisdiccional que determino la controversia"
               clearable
               :rules="EditValidator.organo_jurisdiccional"
+              :readonly="props.isReadonlyControversia"
               class="q-ma-md"
               type="text"
             >
@@ -123,6 +127,7 @@
               label="Observaciones de la controversia"
               clearable
               :rules="EditValidator.observaciones"
+              :readonly="props.isReadonlyControversia"
               type="textarea"
               class="q-ma-md"
             >
@@ -165,7 +170,13 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
+        <q-btn
+          flat
+          label="Guardar"
+          v-if="!props.isReadonlyControversia"
+          color="primary"
+          @click="saveInfo"
+        />
         <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
       </q-card-actions>
     </q-card>
