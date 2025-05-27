@@ -67,16 +67,13 @@
             que se pueda pausar la misma a partir de que se creó y asignó comité técnico.
           </q-banner>
 
-          <q-form>
+          <q-form ref="formulario">
             <select-custom
               v-model="formData.cuando_aplica"
-              :options="[
-                { label: 'Antes de la sanción', value: 'antes' },
-                { label: 'Durante la sanción', value: 'durante' },
-                { label: 'Después de la sanción', value: 'despues' },
-              ]"
-              label="cuando aplica la controversia"
+              :options="optionsCuandoAplica"
+              label="cuando aplica la controversia *"
               clearable
+              :rules="EditValidator.cuando_aplica"
               class="q-ma-md"
             >
               <template #prepend>
@@ -85,8 +82,9 @@
             </select-custom>
             <input-text
               v-model="formData.fecha_solicitud"
-              label="Fecha de admisión de controversia"
+              label="Fecha de admisión de controversia *"
               clearable
+              :rules="EditValidator.fecha_solicitud"
               type="date"
               class="q-ma-md"
             >
@@ -97,31 +95,25 @@
             <input-text
               v-model="formData.numero_sesion"
               label="Número de sesión"
-              placeholder="Escribe el número de sesión"
+              placeholder="Escribe el número de sesión *"
               clearable
+              :rules="EditValidator.numero_sesion"
               class="q-ma-md"
               type="text"
             >
-              <!-- TODO: Usar para validar -->
-              <!-- <template #append>
-                <q-icon name="check_circle" color="positive" />
-              </template> -->
               <template #prepend>
                 <q-icon name="person" />
               </template>
             </input-text>
             <input-text
               v-model="formData.organo_jurisdiccional"
-              label="Órgano jurisdiccional que determino la controversia"
+              label="Órgano jurisdiccional que determino la controversia *"
               placeholder="Escribe el Órgano jurisdiccional que determino la controversia"
               clearable
+              :rules="EditValidator.organo_jurisdiccional"
               class="q-ma-md"
               type="text"
             >
-              <!-- TODO: Usar para validar -->
-              <!-- <template #append>
-                <q-icon name="check_circle" color="positive" />
-              </template> -->
               <template #prepend>
                 <q-icon name="person" />
               </template>
@@ -130,6 +122,7 @@
               v-model="formData.observaciones"
               label="Observaciones de la controversia"
               clearable
+              :rules="EditValidator.observaciones"
               type="textarea"
               class="q-ma-md"
             >
@@ -149,7 +142,7 @@
               @uploaded="onUploaded"
               @failed="onUploadFailed"
               @added="onFileAdded"
-              label="Agregar controversia (máx. 10MB)"
+              label="Agregar controversia (máx. 10MB) *"
               :auto-upload="false"
               field-name="file"
               :form-fields="formFields"
@@ -195,7 +188,8 @@ import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
 import { ControversiaService } from 'src/app/services/sanciones/controversiaService';
-
+// Validators
+import EditValidator from 'src/app/validators/controversia/edit.validator';
 // Variables
 const emit = defineEmits<{
   (e: 'update:controversiaEditModal', value: boolean): void;
@@ -213,11 +207,10 @@ const incidenciaStore = useIncidenciaStore();
 const sessionStore = useSessionStore();
 const $q = useQuasar();
 const controversiaService = new ControversiaService();
-
 const incidencia = incidenciaStore.getIncidencia();
+const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
-const uploadUrl = `${import.meta.env.VITE_APP_API_URL}/tecnico/seguridad/sancion/uploadFile`;
 const uploadHeaders = [
   { name: 'Accept', value: 'application/json' },
   { name: 'Authorization', value: `Bearer ${token}` },
@@ -226,13 +219,59 @@ const mostrarBanner = ref(true);
 const filePreviewUrl = ref<string | null>(null);
 
 const formData = ref<ControversiaCreate>({
-  cuando_aplica: null,
-  fecha_solicitud: null,
-  numero_sesion: null,
-  organo_jurisdiccional: null,
-  observaciones: null,
-  controversia_file: null,
+  cuando_aplica: sancion.value?.controversia?.cuando_aplica ?? '',
+  fecha_solicitud: sancion.value?.controversia?.fecha_solicitud ?? '',
+  numero_sesion: sancion.value?.controversia?.no_sesion_comite ?? '',
+  organo_jurisdiccional: sancion.value?.controversia?.organo_jurisdiccional ?? '',
+  observaciones: sancion.value?.controversia?.observaciones ?? '',
+  controversia_file: sancion.value?.controversia?.controversia_file ?? '',
 });
+
+const validateCuandoAplica = () => {
+  if (!sancion.value || !sancion.value.fecha_registro) {
+    return [];
+  }
+
+  const fechaRegistro = new Date(sancion.value.fecha_registro);
+  const fechaActual = new Date();
+  const diffTime = fechaActual.getTime() - fechaRegistro.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+  if (diffDays > 3) {
+    return [{ label: 'Después de la sanción', value: 'despues' }];
+  }
+
+  return [
+    { label: 'Antes de la sanción', value: 'antes' },
+    { label: 'Durante la sanción', value: 'durante' },
+    { label: 'Después de la sanción', value: 'despues' },
+  ];
+};
+
+const urlAmbiente = () => {
+  const ambiente = import.meta.env.VITE_APP_ENV;
+  let baseURL;
+  switch (ambiente) {
+    case 'LOCAL':
+      baseURL = import.meta.env.VITE_APP_API_URL_LOCAL;
+      break;
+    case 'TEST':
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      break;
+    case 'QA':
+      baseURL = import.meta.env.VITE_APP_API_URL_QA;
+      break;
+    case 'PROD':
+      baseURL = import.meta.env.VITE_APP_API_URL_PROD;
+      break;
+    default:
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+  }
+
+  return baseURL;
+};
+const uploadUrl = `${urlAmbiente()}/tecnico/seguridad/sancion/uploadFile`;
+const optionsCuandoAplica = validateCuandoAplica();
 
 // Funciones
 const closeModal = () => {
@@ -279,51 +318,60 @@ const onUploadFailed = (info: { files: readonly File[]; xhr: XMLHttpRequest }) =
 };
 
 const saveInfo = async () => {
-  const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
-  if (filename.path) {
-    try {
-      formData.value.controversia_file = filename.path;
-      const incidente_id = incidencia.id;
-      const sancion_id = sancion.value?.id;
-      if (!incidente_id || !sancion_id) {
-        $q.notify({
-          type: 'negative',
-          message: 'Error al obtener el incidente o la sanción',
-        });
-        return;
-      }
-      const response = await controversiaService.agregarSancion(
-        incidente_id,
-        sancion_id,
-        formData.value,
-      );
-
-      incidenciaStore.setIncidencia(response);
-      emit('upload-success');
-      closeModal();
-      $q.notify({
-        type: 'positive',
-        message: 'Controversia agregada correctamente',
-      });
-    } catch (error: unknown) {
-      let message = 'Error inesperado';
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
+  await formulario.value.validate().then(async (exito: boolean) => {
+    if (!exito) {
       $q.notify({
         type: 'negative',
-        message,
+        message: 'Por favor, completa todos los campos requeridos',
       });
       return;
     }
-  } else {
-    $q.notify({
-      type: 'negative',
-      message: 'No se ha subido ningún archivo',
-    });
-    return;
-  }
+    const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
+    if (filename.path) {
+      try {
+        formData.value.controversia_file = filename.path;
+        const incidente_id = incidencia.id;
+        const sancion_id = sancion.value?.id;
+        if (!incidente_id || !sancion_id) {
+          $q.notify({
+            type: 'negative',
+            message: 'Error al obtener el incidente o la sanción',
+          });
+          return;
+        }
+        const response = await controversiaService.agregarSancion(
+          incidente_id,
+          sancion_id,
+          formData.value,
+        );
+
+        incidenciaStore.setIncidencia(response);
+        emit('upload-success');
+        closeModal();
+        $q.notify({
+          type: 'positive',
+          message: 'Controversia agregada correctamente',
+        });
+      } catch (error: unknown) {
+        let message = 'Error inesperado';
+        if (error instanceof Error) {
+          message = error.message;
+        }
+
+        $q.notify({
+          type: 'negative',
+          message,
+        });
+        return;
+      }
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'No se ha subido ningún archivo',
+      });
+      return;
+    }
+  });
 };
 
 function onFileAdded(files: readonly File[]) {

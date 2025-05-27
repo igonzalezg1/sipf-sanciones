@@ -25,6 +25,10 @@ export interface Controversia {
   organo_jurisdiccional: string | null;
   tipo_sancion: string | null;
   id: number | null;
+  cuando_aplica: string | null;
+  numero_sesion: string | null;
+  resolucion_juez: string | null;
+  controversia_file: string | null;
 }
 
 export interface ControversiaResolucionCreate {
