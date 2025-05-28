@@ -125,6 +125,7 @@
               </template>
             </input-text>
             <q-uploader
+              v-if="!props.isReadOnly"
               :url="uploadUrl"
               method="POST"
               :headers="uploadHeaders"
@@ -142,6 +143,13 @@
               :form-fields="formFields"
               class="q-mx-md tw-w-96 text-center"
             />
+            <q-btn
+              v-if="!filePreviewUrl"
+              label="Ver archivo actual"
+              color="positive"
+              class="q-mx-md tw-w-96"
+              @click="goToFile"
+            />
             <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
               <q-card-section>
                 <div class="text-subtitle2 q-mb-sm">Vista previa del PDF</div>
@@ -158,9 +166,9 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn label="Guardar" color="positive" @click="saveInfo" />
-        <q-btn label="limpiar" color="info" @click="clearform" />
+      <q-card-actions align="center">
+        <q-btn label="Guardar" v-if="!props.isReadOnly" color="positive" @click="saveInfo" />
+        <q-btn label="limpiar" v-if="!props.isReadOnly" color="info" @click="clearform" />
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
@@ -193,6 +201,7 @@ const emit = defineEmits<{
 }>();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
+  isReadOnly: { type: Boolean, default: false },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel
@@ -207,27 +216,31 @@ const incidencia = incidenciaStore.getIncidencia();
 const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
+const storageURL = ref<string>('');
 const urlAmbiente = () => {
   const ambiente = import.meta.env.VITE_APP_ENV;
   let baseURL;
   switch (ambiente) {
     case 'LOCAL':
       baseURL = import.meta.env.VITE_APP_API_URL_LOCAL;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_LOCAL;
       break;
     case 'TEST':
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
       break;
     case 'QA':
       baseURL = import.meta.env.VITE_APP_API_URL_QA;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_QA;
       break;
     case 'PROD':
       baseURL = import.meta.env.VITE_APP_API_URL_PROD;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_PROD;
       break;
     default:
-      console.warn('Ambiente no reconocido, usando URL base por defecto.');
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
   }
-
   return baseURL;
 };
 const uploadUrl = `${urlAmbiente()}/tecnico/seguridad/sancion/uploadFile`;
@@ -408,5 +421,18 @@ function clearform() {
   };
   localStorage.removeItem('archivo');
   clearPreview();
+}
+
+function goToFile() {
+  const actualFile = `${storageURL.value}/${sancion.value?.amparo?.file_name_resoluccion ?? ''}`;
+  console.log(actualFile);
+  if (actualFile) {
+    window.open(actualFile, '_blank');
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: 'No hay archivo disponible para mostrar',
+    });
+  }
 }
 </script>

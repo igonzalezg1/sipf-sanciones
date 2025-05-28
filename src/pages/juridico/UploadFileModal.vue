@@ -45,7 +45,7 @@
         />
       </q-card-section>
 
-      <q-card-actions align="right">
+      <q-card-actions align="center">
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>

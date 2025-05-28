@@ -168,7 +168,7 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="right">
+      <q-card-actions align="center">
         <q-btn label="Guardar" color="positive" @click="saveInfo" />
         <q-btn label="limpiar" color="info" @click="clearForm" />
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
