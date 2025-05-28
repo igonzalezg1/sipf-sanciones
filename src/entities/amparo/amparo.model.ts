@@ -8,7 +8,7 @@ export interface AmparoCreate {
 }
 
 export interface Amparo {
-  en_comite: number | null;
+  enviado_comite: number | null;
   fecha_fin_real_sancion: string | null;
   fecha_fin_sancion: string | null;
   fecha_inicio_sancion: string | null;

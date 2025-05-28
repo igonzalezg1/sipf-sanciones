@@ -98,19 +98,23 @@ function tieneResolucionAmparo(incidencia: Incidencia): boolean {
 
 function amparoEstaEnComite(incidencia: Incidencia): boolean {
   const amparo = getAmparo(getSancion(incidencia));
-  return typeof amparo?.en_comite === 'number' && amparo.en_comite >= 1;
+  return typeof amparo?.enviado_comite === 'number' && amparo.enviado_comite >= 1;
 }
 
 function amparoTieneResolucion(incidencia: Incidencia): boolean {
   const amparo = getAmparo(getSancion(incidencia));
-  return typeof amparo?.en_comite === 'number' && amparo.en_comite > 1 && amparo.en_comite < 3;
+  return (
+    typeof amparo?.enviado_comite === 'number' &&
+    amparo.enviado_comite > 1 &&
+    amparo.enviado_comite < 3
+  );
 }
 
 function puedeAgregarSolicitudResolucion(incidencia: Incidencia): boolean {
   const amparo = getAmparo(getSancion(incidencia));
-  return typeof amparo?.en_comite === 'number' && amparo.en_comite < 3;
+  return typeof amparo?.enviado_comite === 'number' && amparo.enviado_comite < 3;
 }
 
 function amparoMandadaASeguridad(incidencia: Incidencia): boolean {
-  return getAmparo(getSancion(incidencia))?.en_comite === 3;
+  return getAmparo(getSancion(incidencia))?.enviado_comite === 3;
 }
