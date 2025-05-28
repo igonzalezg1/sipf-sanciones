@@ -211,6 +211,7 @@
 
   <ShowEditResolucionAmparoModal
     v-model="verditAmparoModal"
+    :isReadOnly="isReadonlyResolucionAmparo"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />

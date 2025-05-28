@@ -129,6 +129,7 @@
               </template>
             </input-text>
             <q-uploader
+              v-if="!props.isReadonlyShowControversia"
               :url="uploadUrl"
               method="POST"
               :headers="uploadHeaders"
@@ -146,6 +147,13 @@
               :form-fields="formFields"
               class="q-mx-md tw-w-96 text-center"
               :readonly="props.isReadonlyShowControversia"
+            />
+            <q-btn
+              v-if="!filePreviewUrl"
+              label="Ver archivo actual"
+              color="positive"
+              class="q-mx-md tw-w-96"
+              @click="goToFile"
             />
             <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
               <q-card-section>
@@ -170,7 +178,12 @@
           color="positive"
           @click="saveInfo"
         />
-        <q-btn label="limpiar" color="info" @click="limpiarForm" />
+        <q-btn
+          label="limpiar"
+          v-if="!isReadonlyShowControversia"
+          color="info"
+          @click="limpiarForm"
+        />
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
@@ -182,6 +195,7 @@
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
+import { useRouter } from 'vue-router';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 // Modelos
@@ -197,6 +211,7 @@ import { ControversiaService } from 'src/app/services/sanciones/controversiaServ
 import CreateValidator from 'src/app/validators/controversia/create-resolucion.validator';
 
 // Variables
+const router = useRouter();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
@@ -217,27 +232,31 @@ const controversiaService = new ControversiaService();
 const incidencia = incidenciaStore.getIncidencia();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
+const storageURL = ref<string>('');
 const urlAmbiente = () => {
   const ambiente = import.meta.env.VITE_APP_ENV;
   let baseURL;
   switch (ambiente) {
     case 'LOCAL':
       baseURL = import.meta.env.VITE_APP_API_URL_LOCAL;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_LOCAL;
       break;
     case 'TEST':
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
       break;
     case 'QA':
       baseURL = import.meta.env.VITE_APP_API_URL_QA;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_QA;
       break;
     case 'PROD':
       baseURL = import.meta.env.VITE_APP_API_URL_PROD;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_PROD;
       break;
     default:
-      console.warn('Ambiente no reconocido, usando URL base por defecto.');
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
   }
-
   return baseURL;
 };
 const uploadUrl = `${urlAmbiente()}/tecnico/seguridad/sancion/uploadFile`;
@@ -333,6 +352,9 @@ const saveInfo = async () => {
 
         incidenciaStore.setIncidencia(response as Incidencia);
         emit('upload-success');
+        await router.push({
+          path: '/juridico',
+        });
         closeModal();
         $q.notify({
           type: 'positive',
@@ -386,5 +408,18 @@ function limpiarForm() {
   };
   localStorage.removeItem('archivo');
   clearPreview();
+}
+
+function goToFile() {
+  const actualFile = `${storageURL.value}/${sancion.value?.controversia?.file_name_resoluccion ?? ''}`;
+  console.log(actualFile);
+  if (actualFile) {
+    window.open(actualFile, '_blank');
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: 'No hay archivo disponible para mostrar',
+    });
+  }
 }
 </script>

@@ -50,6 +50,7 @@
               label="Fecha de resolución de amparo"
               clearable
               :rules="EditValidator.fecha_resolucion"
+              :readonly="props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -63,6 +64,7 @@
               label="Fecha de inicio de la sanción"
               clearable
               :rules="EditValidator.fecha_inicio_sancion"
+              :readonly="esDisable() || props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -76,6 +78,7 @@
               label="Fecha fin de la sanción"
               clearable
               :rules="EditValidator.fecha_fin_sancion"
+              :readonly="esDisable() || isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -89,6 +92,7 @@
               label="Fecha de suspencion de la sanción"
               clearable
               :rules="EditValidator.fecha_suspencion"
+              :readonly="props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -102,6 +106,7 @@
               label="Observaciones de la amparo"
               clearable
               :rules="EditValidator.observaciones_resolucion"
+              :readonly="isReadOnly"
               type="textarea"
               class="q-ma-md"
             >
@@ -115,6 +120,7 @@
               label="Resolución  del Juez"
               clearable
               :rules="EditValidator.resolucion_juez"
+              :readonly="isReadOnly"
               type="textarea"
               class="q-ma-md"
             >
@@ -123,6 +129,7 @@
               </template>
             </input-text>
             <q-uploader
+              v-if="!props.isReadOnly"
               :url="uploadUrl"
               method="POST"
               :headers="uploadHeaders"
@@ -139,6 +146,13 @@
               field-name="file"
               :form-fields="formFields"
               class="q-mx-md tw-w-96 text-center"
+            />
+            <q-btn
+              v-if="!filePreviewUrl"
+              label="Ver archivo actual"
+              color="positive"
+              class="q-mx-md tw-w-96"
+              @click="goToFile"
             />
             <q-card v-if="filePreviewUrl" class="q-ma-md" flat bordered>
               <q-card-section>
@@ -157,8 +171,8 @@
       </q-card-section>
 
       <q-card-actions align="center">
-        <q-btn label="Guardar" color="positive" @click="saveInfo" />
-        <q-btn label="limpiar" color="info" @click="clearform" />
+        <q-btn label="Guardar" v-if="!props.isReadOnly" color="positive" @click="saveInfo" />
+        <q-btn label="limpiar" v-if="!props.isReadOnly" color="info" @click="clearform" />
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
@@ -170,6 +184,7 @@
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
+import { useRouter } from 'vue-router';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 // Modelos
@@ -185,12 +200,14 @@ import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 import EditValidator from 'src/app/validators/amparo/edit-resolucion.validator';
 
 // Variables
+const router = useRouter();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
 }>();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
+  isReadOnly: { type: Boolean, default: false },
 });
 const formFields = computed(() => [
   { name: '_method', value: 'PUT' }, // Method spoofing para Laravel
@@ -205,27 +222,31 @@ const incidencia = incidenciaStore.getIncidencia();
 const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
+const storageURL = ref<string>('');
 const urlAmbiente = () => {
   const ambiente = import.meta.env.VITE_APP_ENV;
   let baseURL;
   switch (ambiente) {
     case 'LOCAL':
       baseURL = import.meta.env.VITE_APP_API_URL_LOCAL;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_LOCAL;
       break;
     case 'TEST':
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
       break;
     case 'QA':
       baseURL = import.meta.env.VITE_APP_API_URL_QA;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_QA;
       break;
     case 'PROD':
       baseURL = import.meta.env.VITE_APP_API_URL_PROD;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_PROD;
       break;
     default:
-      console.warn('Ambiente no reconocido, usando URL base por defecto.');
       baseURL = import.meta.env.VITE_APP_API_URL_TEST;
+      storageURL.value = import.meta.env.VITE_API_STORAGE_URL_TEST;
   }
-
   return baseURL;
 };
 const uploadUrl = `${urlAmbiente()}/tecnico/seguridad/sancion/uploadFile`;
@@ -332,6 +353,9 @@ const saveInfo = async () => {
 
         incidenciaStore.setIncidencia(response as Incidencia);
         emit('upload-success');
+        await router.push({
+          path: '/juridico',
+        });
         closeModal();
         $q.notify({
           type: 'positive',
@@ -372,6 +396,27 @@ function clearPreview() {
   }
 }
 
+const convertToDateFormat = (date: string): string => {
+  const [day, month, year] = date.split('/');
+  return `${year}-${month}-${day}`;
+};
+
+function esDisable(): boolean {
+  const cuandoAplica = sancion.value?.amparo?.cuando_aplica;
+  const fecha_actual = new Date();
+  const fecha_fin = new Date(convertToDateFormat(sancion.value?.fecha_hora_fin_sancion ?? ''));
+  console.log('Fecha fin:', fecha_fin);
+  console.log('Fecha actual:', fecha_actual);
+  if (cuandoAplica === 'despues') {
+    return true;
+  }
+  if (fecha_fin < fecha_actual) {
+    return true;
+  }
+
+  return false;
+}
+
 function clearform() {
   formulario.value?.resetValidation();
   formData.value = {
@@ -385,5 +430,18 @@ function clearform() {
   };
   localStorage.removeItem('archivo');
   clearPreview();
+}
+
+function goToFile() {
+  const actualFile = `${storageURL.value}/${sancion.value?.amparo?.file_name_resoluccion ?? ''}`;
+  console.log(actualFile);
+  if (actualFile) {
+    window.open(actualFile, '_blank');
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: 'No hay archivo disponible para mostrar',
+    });
+  }
 }
 </script>

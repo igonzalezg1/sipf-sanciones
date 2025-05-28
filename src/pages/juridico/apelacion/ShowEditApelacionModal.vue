@@ -74,6 +74,7 @@
               label="cuando aplica la apelacion"
               clearable
               :rules="EditValidator.cuando_aplica"
+              :readonly="props.isReadonlyApelacion"
               class="q-ma-md"
             >
               <template #prepend>
@@ -85,6 +86,7 @@
               label="Fecha de admisión de apelacion"
               clearable
               :rules="EditValidator.fecha_solicitud"
+              :readonly="props.isReadonlyApelacion"
               type="date"
               class="q-ma-md"
             >
@@ -98,6 +100,7 @@
               placeholder="Escribe el número de sesión"
               clearable
               :rules="EditValidator.numero_sesion"
+              :readonly="props.isReadonlyApelacion"
               class="q-ma-md"
               type="text"
             >
@@ -111,6 +114,7 @@
               placeholder="Escribe el Órgano jurisdiccional que determino la apelacion"
               clearable
               :rules="EditValidator.organo_jurisdiccional"
+              :readonly="props.isReadonlyApelacion"
               class="q-ma-md"
               type="text"
             >
@@ -123,6 +127,7 @@
               label="Observaciones de la apelacion"
               clearable
               :rules="EditValidator.observaciones"
+              :readonly="props.isReadonlyApelacion"
               type="textarea"
               class="q-ma-md"
             >
@@ -173,8 +178,8 @@
       </q-card-section>
 
       <q-card-actions align="center">
-        <q-btn label="Guardar" color="positive" @click="saveInfo" />
-        <q-btn label="Limpiar" color="info" @click="clearForm" />
+        <q-btn label="Guardar" v-if="!isReadonlyApelacion" color="positive" @click="saveInfo" />
+        <q-btn label="Limpiar" v-if="!isReadonlyApelacion" color="info" @click="clearForm" />
         <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>

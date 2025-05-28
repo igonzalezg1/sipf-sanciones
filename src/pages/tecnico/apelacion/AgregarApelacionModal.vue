@@ -70,11 +70,7 @@
           <q-form ref="formulario">
             <select-custom
               v-model="formData.cuando_aplica"
-              :options="[
-                { label: 'Antes de la sanción', value: 'antes' },
-                { label: 'Durante la sanción', value: 'durante' },
-                { label: 'Después de la sanción', value: 'despues' },
-              ]"
+              :options="validateCuandoAplica()"
               label="cuando aplica la apelacion"
               clearable
               :rules="CreateValidator.cuando_aplica"
@@ -182,6 +178,7 @@
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
+import { useRouter } from 'vue-router';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
@@ -197,6 +194,7 @@ import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 import CreateValidator from 'src/app/validators/apelacion/create.validator';
 
 // Variables
+const router = useRouter();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
@@ -245,6 +243,27 @@ const uploadHeaders = [
   { name: 'Accept', value: 'application/json' },
   { name: 'Authorization', value: `Bearer ${token}` },
 ];
+
+const validateCuandoAplica = () => {
+  if (!sancion.value || !sancion.value.fecha_registro) {
+    return [];
+  }
+
+  const fechaRegistro = new Date(sancion.value.fecha_registro);
+  const fechaActual = new Date();
+  const diffTime = fechaActual.getTime() - fechaRegistro.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+  if (diffDays > 10) {
+    return [{ label: 'Después de la sanción', value: 'despues' }];
+  }
+
+  return [
+    { label: 'Antes de la sanción', value: 'antes' },
+    { label: 'Durante la sanción', value: 'durante' },
+    { label: 'Después de la sanción', value: 'despues' },
+  ];
+};
 const mostrarBanner = ref(true);
 const filePreviewUrl = ref<string | null>(null);
 
@@ -332,6 +351,9 @@ const saveInfo = async () => {
 
         incidenciaStore.setIncidencia(response);
         emit('upload-success');
+        await router.push({
+          path: '/juridico',
+        });
         closeModal();
         $q.notify({
           type: 'positive',
