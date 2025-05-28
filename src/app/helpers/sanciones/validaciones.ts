@@ -67,12 +67,11 @@ export function eneableShowDocument(sancion: SancionData): boolean {
 
   if (sancion) {
     if (incidencia) {
-      const isAttended = Number(incidencia?.atendido) === 1;
       const hasFile =
         sancion?.sancion_file != null &&
         sancion.sancion_file !== '' &&
         !!sancion.sancion_file !== false;
-      isShow = isAttended && hasFile;
+      isShow = hasFile;
     }
   }
 

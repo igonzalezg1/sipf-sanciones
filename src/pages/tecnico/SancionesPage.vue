@@ -108,7 +108,7 @@ async function verSancion(incidencia: Incidencia) {
   const sancion = incidencia.sanciones?.data?.[0] ?? null;
   localStorage.setItem('sanciones', JSON.stringify(sancion));
 
-  await router.push('/sancion/crear');
+  await router.push('/sancion-crear-tecnico');
 }
 
 function abrirFormulario(incidencia: Incidencia) {

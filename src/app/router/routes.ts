@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: 'sancion/crear',
+        path: 'sancion-crear-juridico',
         component: SancionesJuridicoCreatePage,
         meta: {
           title: 'Sanciones Jurídico',
@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: 'sancion-crear',
+        path: 'sancion-crear-tecnico',
         component: SancionesTecnicoCreatePage,
         meta: {
           title: 'Sanciones Técnico',

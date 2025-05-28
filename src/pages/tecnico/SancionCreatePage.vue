@@ -1,341 +1,293 @@
 <template>
-  <div class="row">
-    <div class="col-12">
-      <form>
-        <div class="row q-mx-md">
-          <div class="col-12">
-            <p class="tw-text-2xl">INCIDENCIA</p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-6">
-            <p class="tw-text-lg q-mx-md tw-uppercase">
-              <span class="tw-font-semibold">Tipo de incidencia: </span
-              >{{ incidencia?.tipo_incidente?.label }}
-            </p>
-            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
-              <span class="tw-font-semibold">Folio de incidencia:</span>
-              {{ incidencia?.folio }}
-            </p>
-          </div>
-          <div class="col-6">
-            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
-              <span class="tw-font-semibold">Fecha y Hora de incidente: </span
-              >{{ incidencia?.fecha_hora_registro }}
-            </p>
-            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
-              <span class="tw-font-semibold">Personal que custodia: </span
-              >{{ incidencia?.persona_registra }}
-            </p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12">
-            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
-              <span class="tw-font-semibold">Descripción de la incidencia: </span
-              >{{ incidencia?.descripcion_incidente }}
-            </p>
-          </div>
-          <div class="col-12">
-            <p class="tw-text-lg q-mx-md tw-uppercase tw-font-semibold">
-              <span class="tw-font-semibold">Lugar de la incidencia: </span
-              >{{ incidencia?.lugar_incidente }}
-            </p>
-          </div>
-        </div>
-
-        <div class="row q-mx-md">
-          <div class="col-12">
-            <p class="tw-text-2xl">SANCION</p>
-          </div>
-        </div>
-        <div class="row tw-uppercase">
-          <div class="col-6">
-            <q-select
-              filled
-              v-model="dataForm.tipo_sancion_id"
-              :options="tiposSancion"
-              label="Tipo de sanción"
-              emit-value
-              map-options
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.fecha_registro"
-              label="Fecha sesión de comite técnico"
-              type="date"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.fecha_hora_inicio_sancion"
-              label="Fecha inicio de sanción"
-              type="date"
-              readonly
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.observaciones"
-              label="Observaciones de la sanción"
-              type="textarea"
-              class="q-ma-md tw-uppercase"
-            />
-          </div>
-          <div class="col-6">
-            <q-input
-              filled
-              v-model="dataForm.no_sesion_comite"
-              label="No de sesión de comite técnico"
-              type="text"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.dias_sancion"
-              label="Días de sanción"
-              type="number"
-              class="q-ma-md"
-            />
-
-            <q-input
-              filled
-              v-model="dataForm.fecha_hora_fin_sancion"
-              readonly
-              label="Fecha fin de sanción"
-              type="date"
-              class="q-ma-md"
-            />
-            <q-input
-              filled
-              v-model="dataForm.descripcion"
-              label="Descripción de la sanción"
-              type="textarea"
-              class="q-ma-md tw-uppercase"
-            />
-          </div>
-        </div>
-        <div class="row tw-uppercase">
-          <div class="col-12">Involucrados</div>
-          <table class="q-table">
-            <thead class="text-center bg-primary text-white">
-              <tr>
-                <th>#</th>
-                <th>PPL</th>
-                <th>Expediente</th>
-                <th>Ubicación</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(involucrado, index) in incidencia?.involucrados?.data" :key="index">
-                <td>{{ index + 1 }}</td>
-                <td>{{ involucrado.nombre_completo }}</td>
-                <td>{{ involucrado.identificador }}</td>
-                <td>{{ involucrado.ubicacion }}</td>
-                <td>
-                  <q-checkbox
-                    color="secondary"
-                    :model-value="selected[involucrado.id] === true"
-                    @update:model-value="(val) => handleCheckboxChange(incidencia.id, val)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="row tw-uppercase">
-          <div class="col-3">
-            <q-input
-              filled
-              v-model="dataForm.firmante_1_nombre"
-              label="Nombre del firmante 1"
-              type="text"
-              class="q-ma-sm"
-            />
-          </div>
-          <div class="col-3">
-            <q-input
-              filled
-              v-model="dataForm.firmante_1_cargo"
-              label="Cargo del firmante 1"
-              type="text"
-              class="q-ma-sm"
-            />
-          </div>
-          <div class="col-3">
-            <q-input
-              filled
-              v-model="dataForm.firmante_2_nombre"
-              label="Nombre del firmante 2"
-              type="text"
-              class="q-ma-sm"
-            />
-          </div>
-          <div class="col-3">
-            <q-input
-              filled
-              v-model="dataForm.firmante_2_cargo"
-              label="Cargo del firmante 2"
-              type="text"
-              class="q-ma-sm"
-            />
-          </div>
-        </div>
-      </form>
-    </div>
-    <div class="col-12">
-      <q-btn
-        v-if="sancionId == 0"
-        class="q-mt-md"
-        color="primary"
-        label="Crear Sanción"
-        @click="guardarSancion"
-        icon="add"
-      />
-    </div>
+  <div class="row q-pa-md" v-if="!sancion">
+    <h2 class="text-center">Aun no han capturado la sancion</h2>
   </div>
-  <div class="row" v-if="sancionId > 0">
+  <div class="row q-pa-md" v-if="sancion">
+    <div class="col-12">
+      <p class="tw-text-2xl">SANCION</p>
+      <p class="tw-text-md">Fecha sesión de comite técnico: {{ sancion.fecha_registro }}</p>
+      <p class="tw-text-md">Folio de sanción: {{ sancion.folio }}</p>
+      <p class="tw-text-md">Tipo de sanción: {{ sancion.tipo_sancion.label }}</p>
+      <p class="tw-text-md">Etapa de la sanción: {{ sancion.etapa_sancion }}</p>
+      <p class="tw-text-md">Estatus de la sanción: {{ sancion.estatus_sancion }}</p>
+    </div>
     <div class="col-12">
       <q-stepper v-model="step" vertical color="primary" animated>
         <q-step :name="1" title="OPCIONES DE SANCION" icon="settings" :done="step > 1">
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >Sanción</q-toolbar-title
               >
             </q-card-header>
-            <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+            <q-card-section class="text-center q-pa-md">
+              <q-btn
+                class="q-ma-sm"
+                color="positive"
+                label="Ver sanción"
+                v-if="!eneableEditSancion(sancion)"
+                @click="
+                  () => {
+                    showSancionModal = true;
+                  }
+                "
+                icon="visibility"
+              />
+              <q-btn
+                v-if="eneableShowDocument(sancion)"
+                class="q-ma-sm"
+                color="positive"
+                label="Ver acta de sanción"
+                @click="getPdfUploaded"
+                icon="file_present"
+              />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 2" color="primary" label="Continuar" />
+            <q-btn
+              @click="step = 2"
+              color="positive"
+              label="Continuar"
+              v-if="eneableControversia(sancion)"
+            />
           </q-stepper-navigation>
         </q-step>
 
         <q-step
           :name="2"
           title="OPCIONES CONTROVERSIA"
-          caption="Optional"
           icon="create_new_folder"
+          v-if="eneableControversia(sancion)"
           :done="step > 2"
         >
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >CONTROVERSIA</q-toolbar-title
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <q-btn
+                v-if="puedeVerControversia(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar solicitud de controversia"
+                icon="visibility"
+                @click="verControversia"
+              />
+              <q-btn
+                v-if="puedeVerResolucion(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar resolución de controversia"
+                icon="visibility"
+                @click="verResolucionControversia"
+              />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 4" color="primary" label="Continuar" />
-            <q-btn flat @click="step = 1" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn
+              @click="step = 4"
+              color="positive"
+              label="Continuar"
+              v-if="puedeVerResolucion(sancion)"
+            />
+            <q-btn @click="step = 1" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
 
-        <q-step :name="4" title="OPCIONES APELACION" icon="add_comment">
+        <q-step
+          :name="4"
+          title="OPCIONES APELACION DE LA CONTROVERSIA"
+          icon="add_comment"
+          :done="step > 2"
+        >
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
-                >APELACION</q-toolbar-title
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
+                >APELACION DE LA CONTROVERSIA</q-toolbar-title
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <q-btn
+                v-if="puedeVerApelacion(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar solicitud de apelacion"
+                icon="visibility"
+                @click="verApelacion"
+              />
+              <q-btn
+                v-if="puedeVerResolucionApelacion(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar resolución de apelacion"
+                icon="visibility"
+                @click="verResolucionApelacion"
+              />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn @click="step = 5" color="primary" label="Continuar" />
-            <q-btn flat @click="step = 2" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn
+              @click="step = 5"
+              color="positive"
+              label="Continuar"
+              v-if="puedeVerResolucionApelacion(sancion)"
+            />
+            <q-btn @click="step = 2" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
         <q-step :name="5" title="OPCIONES AMPARO" icon="add_comment">
           <q-card>
             <q-card-header>
-              <q-toolbar-title class="text-h6 text-center bg-primary text-white"
+              <q-toolbar-title class="text-center text-white text-h6 bg-primary"
                 >AMPARO</q-toolbar-title
               >
             </q-card-header>
             <q-card-section class="q-pa-md">
-              <q-btn class="q-mx-lg" color="primary" label="Ver sancion" icon="visibility" />
-              <q-btn class="q-mx-lg" color="primary" label="Ver documento" icon="description" />
+              <q-btn
+                v-if="puedeVerAmparo(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar solicitud de amparo"
+                icon="visibility"
+                @click="verAmparo"
+              />
+              <q-btn
+                v-if="puedeVerResolucionAmparo(sancion)"
+                class="q-mx-lg"
+                color="positive"
+                label="Consultar resolución de amparo"
+                icon="visibility"
+                @click="verResolucionAmparo"
+              />
             </q-card-section>
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn color="primary" label="Finalizar" />
-            <q-btn flat @click="step = 4" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn @click="step = 4" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
       </q-stepper>
     </div>
   </div>
+
+  <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
+  <ShowSancionModal v-model="showSancionModal" />
+
+  <showEditcontroversiaModal
+    :controversiaEditModal="controversiaEditModal"
+    :isReadonlyControversia="isReadonlyControversia"
+    @update:controversiaEditModal="controversiaEditModal = $event"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditControversiaResolucionModal
+    v-model="verditcontroversiaModal"
+    :isReadonlyShowControversia="isReadonlyResolucionControversia"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <ShowEditApelacionModal
+    v-model="apelacionEditModal"
+    :isReadonlyApelacion="isReadonlyApelacion"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditResolucionApelacionModal
+    v-model="verditApelacionModal"
+    :isReadonlyResolucionApelacion="isReadonlyResolucionApelacion"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
+  <ShowEditAmparoModal
+    v-model="amparoEditModal"
+    :isReadonlyAmparo="isReadonlyAmparo"
+    @upload-success="actualizarInfo"
+  />
+
+  <ShowEditResolucionAmparoModal
+    v-model="verditAmparoModal"
+    @update:model-value="actualizarInfo"
+    @upload-success="actualizarInfo"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import type { SancionCreate, TipoSancion } from 'src/entities/sancion/sancion.model';
+import { ref, onMounted } from 'vue';
+// Modelos
+import type { SancionData, TipoSancion } from 'src/entities/sancion/sancion.model';
+// Helpers
+import {
+  eneableControversia,
+  eneableShowDocument,
+  eneableEditSancion,
+} from 'src/app/helpers/sanciones/validaciones';
+import {
+  puedeVerControversia,
+  puedeVerResolucion,
+} from 'src/app/helpers/controversia/validaciones';
+
+import {
+  puedeVerApelacion,
+  puedeVerResolucionApelacion,
+} from 'src/app/helpers/apelaciones/validaciones';
+
+import { puedeVerAmparo, puedeVerResolucionAmparo } from 'src/app/helpers/amparo/validaciones';
+// Componentes
+import ShowEditModal from './ShowEditModal.vue';
+import ShowSancionModal from './ShowSancionModal.vue';
+import showEditcontroversiaModal from './controversia/ShowEditControversiaModal.vue';
+import ShowEditControversiaResolucionModal from './controversia/ShowEditResolucionControversiaModal.vue';
+import ShowEditApelacionModal from './apelacion/ShowEditApelacionModal.vue';
+import ShowEditResolucionApelacionModal from './apelacion/ShowEditResolucionApelacionModal.vue';
+import ShowEditAmparoModal from './Amparo/ShowEditAmparoModal.vue';
+import ShowEditResolucionAmparoModal from './Amparo/ShowEditResolucionAmparoModal.vue';
+// Servicios
 import { CatalogsService } from 'src/app/services/catalogs/CatalogsService';
-import { SancionesService } from 'src/app/services/sanciones/sancionesService';
+// Stores
 import { useIncidenciaStore } from 'stores/incidencias';
-import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import type { SancionInvolucrado } from 'entities/sancion/sancion-involucrados';
-
-const route = useRoute();
-const step = ref(1);
-const sancionId = ref(0);
-const tiposSancionResponse = ref<TipoSancion[] | null>([]);
-const involucradosSelected = ref<SancionInvolucrado[]>([]);
-const tiposSancion = ref<object[]>([]);
+// Stores
 const incidenciaStore = useIncidenciaStore();
-const incidencia = ref(incidenciaStore.getIncidencia());
-const sancionesService = new SancionesService();
+// Services
 const tiposSancionService = new CatalogsService();
-const router = useRouter();
-const $q = useQuasar();
+// Variables de modales
+const showEdiModal = ref(false);
+const showSancionModal = ref(false);
+const controversiaEditModal = ref(false);
+const verditcontroversiaModal = ref(false);
+const apelacionEditModal = ref(false);
+const verditApelacionModal = ref(false);
+const amparoEditModal = ref(false);
+const verditAmparoModal = ref(false);
+// Variables
+const incidencia = ref(incidenciaStore.getIncidencia());
+const step = ref(1);
+const tiposSancionResponse = ref<TipoSancion[] | null>([]);
+const sancion = ref<SancionData | null>(null);
+const tiposSancion = ref<object[]>([]);
+const isReadonly = ref(false);
+const isReadonlyControversia = ref(false);
+const isReadonlyResolucionControversia = ref(false);
+const isReadonlyApelacion = ref(false);
+const isReadonlyResolucionApelacion = ref(false);
+const isReadonlyAmparo = ref(false);
+const isReadonlyResolucionAmparo = ref(false);
 
-const dataForm = ref<SancionCreate>({
-  tipo_sancion_id: 0,
-  no_sesion_comite: '',
-  fecha_registro: '',
-  fecha_hora_inicio_sancion: '',
-  fecha_hora_fin_sancion: '',
-  dias_sancion: '',
-  observaciones: '',
-  descripcion: '',
-  firmante_1_nombre: '',
-  firmante_1_cargo: '',
-  firmante_2_nombre: '',
-  firmante_2_cargo: '',
-  involucrados: '',
-  centro_id: null,
-});
-
-const selected = ref<Record<number, boolean>>({});
-
-onMounted(async () => {
-  if (route.query.incidenciaId) {
-    sancionId.value = Number(route.query.incidenciaId);
-  } else {
-    sancionId.value = 0;
+// Funciones
+// Funcion de inicio
+onMounted(async (): Promise<void> => {
+  if (incidencia.value.sanciones) {
+    sancion.value = incidencia.value.sanciones.data[0];
   }
 
   tiposSancionResponse.value = await tiposSancionService.getTiposSancion(
     incidencia.value.articulo?.id || 0,
   );
+  console.log('Tipos de sanción', tiposSancionResponse.value);
   if (tiposSancionResponse.value) {
     tiposSancion.value = tiposSancionResponse.value.map((tipo) => ({
       label: tipo.descripcion,
@@ -344,55 +296,77 @@ onMounted(async () => {
   }
 });
 
-watch(
-  () => Number(dataForm.value.dias_sancion),
-  (newValue: number) => {
-    if (isNaN(newValue) || !dataForm.value.fecha_registro) return;
-    const fechaInicio = new Date(dataForm.value.fecha_registro);
-    fechaInicio.setDate(fechaInicio.getDate() + 3);
-    dataForm.value.fecha_hora_inicio_sancion = fechaInicio.toISOString().substring(0, 10);
-    const fechaFin = new Date(fechaInicio);
-    fechaFin.setDate(fechaFin.getDate() + newValue);
-    dataForm.value.fecha_hora_fin_sancion = fechaFin.toISOString().substring(0, 10);
-  },
-);
-
-function handleCheckboxChange(id: number, checked: boolean) {
-  if (checked) {
-    selected.value[id] = true;
-  } else {
-    delete selected.value[id];
-  }
+/**
+ * Funcion para obtener el pdf de la sancion
+ * @returns
+ */
+function actualizarInfo(): void {
+  sancion.value = JSON.parse(localStorage.getItem('sanciones') || '{}');
+  incidencia.value = incidenciaStore.getIncidencia();
 }
 
-async function guardarSancion() {
-  const payload = dataForm.value;
-  payload.centro_id = incidencia.value.centro_id;
+/**
+ * Funcion para obtener el pdf de la sancion
+ * @returns
+ */
+function getPdfUploaded(): void {
+  const fileUrl = `${urlAmbiente()}${sancion.value?.sancion_file}`;
+  window.open(fileUrl, '_blank');
+}
 
-  Object.entries(selected.value).forEach(([id, isSelected]) => {
-    if (isSelected) {
-      involucradosSelected.value.push({
-        incidente_id: incidenciaStore.getIncidencia().id,
-        incidente_involucrados_id: id,
-        sancion_id: 0,
-        id: 0,
-        involucrado_incidente: id,
-      });
-    }
-  });
-
-  payload.involucrados = JSON.stringify(involucradosSelected.value);
-
-  const response = await sancionesService.agregarSancion(payload);
-  if (response !== null) {
-    $q.notify({
-      type: 'positive',
-      message: 'Sanción guardada correctamente',
-    });
-    await router.push({
-      path: '/sanciones-juridico',
-    });
+const urlAmbiente = () => {
+  const ambiente = import.meta.env.VITE_APP_ENV;
+  let baseURL;
+  switch (ambiente) {
+    case 'LOCAL':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_LOCAL;
+      break;
+    case 'TEST':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_TEST;
+      break;
+    case 'QA':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_QA;
+      break;
+    case 'PROD':
+      baseURL = import.meta.env.VITE_API_STORAGE_URL_PROD;
+      break;
+    default:
+      console.warn('Ambiente no reconocido, usando URL base por defecto.');
+      baseURL = import.meta.env.VITE_APP_API_URL_TEST;
   }
+
+  return baseURL;
+};
+
+function verControversia(): void {
+  controversiaEditModal.value = true;
+  isReadonlyControversia.value = true;
+}
+
+function verResolucionControversia(): void {
+  verditcontroversiaModal.value = true;
+  isReadonlyResolucionControversia.value = true;
+}
+
+function verApelacion(): void {
+  apelacionEditModal.value = true;
+  isReadonlyApelacion.value = true;
+}
+
+function verResolucionApelacion(): void {
+  verditApelacionModal.value = true;
+  isReadonlyResolucionApelacion.value = true;
+}
+
+// Amparos
+function verAmparo(): void {
+  amparoEditModal.value = true;
+  isReadonlyAmparo.value = true;
+}
+
+function verResolucionAmparo(): void {
+  verditAmparoModal.value = true;
+  isReadonlyResolucionAmparo.value = true;
 }
 </script>
 <style scoped></style>

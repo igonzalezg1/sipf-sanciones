@@ -282,7 +282,7 @@ function getAcciones(row: Incidencia) {
       label: 'Ver Procesos de la Sanción',
       icon: 'assignment',
       color: 'blue-8',
-      emit: 'proceso',
+      emit: 'sancion',
       permiso: 'juridico-sanciones.detalle',
     });
   }
