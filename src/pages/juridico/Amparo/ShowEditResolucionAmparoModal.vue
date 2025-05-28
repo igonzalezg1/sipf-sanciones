@@ -44,11 +44,12 @@
       <q-separator />
       <q-card-section>
         <div class="q-mb-md">
-          <q-form>
+          <q-form ref="formulario">
             <input-text
               v-model="formData.fecha_resolucion"
               label="Fecha de resolución de amparo"
               clearable
+              :rules="EditValidator.fecha_resolucion"
               type="date"
               class="q-ma-md"
             >
@@ -61,6 +62,7 @@
               v-model="formData.fecha_inicio_sancion"
               label="Fecha de inicio de la sanción"
               clearable
+              :rules="EditValidator.fecha_inicio_sancion"
               type="date"
               class="q-ma-md"
             >
@@ -73,6 +75,7 @@
               v-model="formData.fecha_fin_sancion"
               label="Fecha fin de la sanción"
               clearable
+              :rules="EditValidator.fecha_fin_sancion"
               type="date"
               class="q-ma-md"
             >
@@ -85,6 +88,7 @@
               v-model="formData.fecha_suspencion"
               label="Fecha de suspencion de la sanción"
               clearable
+              :rules="EditValidator.fecha_suspencion"
               type="date"
               class="q-ma-md"
             >
@@ -97,6 +101,7 @@
               v-model="formData.observaciones_resolucion"
               label="Observaciones de la amparo"
               clearable
+              :rules="EditValidator.observaciones_resolucion"
               type="textarea"
               class="q-ma-md"
             >
@@ -109,6 +114,7 @@
               v-model="formData.resolucion_juez"
               label="Resolución  del Juez"
               clearable
+              :rules="EditValidator.resolucion_juez"
               type="textarea"
               class="q-ma-md"
             >
@@ -151,8 +157,9 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn label="Guardar" color="positive" @click="saveInfo" />
+        <q-btn label="limpiar" color="info" @click="clearform" />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -174,6 +181,8 @@ import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
 import { AmparoService } from 'src/app/services/sanciones/AmparoService';
+// Validators
+import EditValidator from 'src/app/validators/amparo/edit-resolucion.validator';
 
 // Variables
 const emit = defineEmits<{
@@ -193,6 +202,7 @@ const $q = useQuasar();
 const amparoService = new AmparoService();
 
 const incidencia = incidenciaStore.getIncidencia();
+const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
 const urlAmbiente = () => {
@@ -225,14 +235,26 @@ const uploadHeaders = [
 ];
 const filePreviewUrl = ref<string | null>(null);
 
+function parseToInputDate(fecha: string): string {
+  if (!fecha || typeof fecha !== 'string') return '';
+
+  const date = new Date(fecha);
+  if (isNaN(date.getTime())) return '';
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 const formData = ref<AmparoResolucionCreate>({
-  fecha_resolucion: '',
-  fecha_inicio_sancion: '',
-  fecha_fin_sancion: '',
-  observaciones_resolucion: '',
-  resolucion_juez: '',
+  fecha_resolucion: parseToInputDate(sancion.value?.amparo?.fecha_resolucion ?? ''),
+  fecha_inicio_sancion: parseToInputDate(sancion.value?.amparo?.fecha_inicio_sancion ?? ''),
+  fecha_fin_sancion: parseToInputDate(sancion.value?.amparo?.fecha_fin_sancion ?? ''),
+  observaciones_resolucion: sancion.value?.amparo?.observaciones_resolucion ?? '',
+  resolucion_juez: sancion.value?.amparo?.resolucion_juez ?? '',
   amparo_resolucion_file: '',
-  fecha_suspencion: '',
+  fecha_suspencion: parseToInputDate(sancion.value?.amparo?.fecha_suspencion ?? ''),
 });
 
 // Funciones
@@ -280,51 +302,61 @@ const onUploadFailed = (info: { files: readonly File[]; xhr: XMLHttpRequest }) =
 };
 
 const saveInfo = async () => {
-  const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
-  if (filename.path) {
-    try {
-      formData.value.amparo_resolucion_file = filename.path;
-      const incidente_id = incidencia.id;
-      const sancion_id = sancion.value?.id;
-      if (!incidente_id || !sancion_id) {
-        $q.notify({
-          type: 'negative',
-          message: 'Error al obtener el incidente o la sanción',
-        });
-        return;
-      }
-      const response = await amparoService.guardarResolucionAmparo(
-        incidente_id,
-        sancion_id,
-        formData.value,
-      );
-
-      incidenciaStore.setIncidencia(response as Incidencia);
-      emit('upload-success');
-      closeModal();
-      $q.notify({
-        type: 'positive',
-        message: 'Resolucion de amparo agregado correctamente',
-      });
-    } catch (error: unknown) {
-      let message = 'Error inesperado';
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
+  await formulario.value.validate().then(async (exito: boolean) => {
+    if (!exito) {
       $q.notify({
         type: 'negative',
-        message,
+        message: 'Por favor, completa todos los campos requeridos',
       });
       return;
     }
-  } else {
-    $q.notify({
-      type: 'negative',
-      message: 'No se ha subido ningún archivo',
-    });
-    return;
-  }
+
+    const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
+    if (filename.path) {
+      try {
+        formData.value.amparo_resolucion_file = filename.path;
+        const incidente_id = incidencia.id;
+        const sancion_id = sancion.value?.id;
+        if (!incidente_id || !sancion_id) {
+          $q.notify({
+            type: 'negative',
+            message: 'Error al obtener el incidente o la sanción',
+          });
+          return;
+        }
+        const response = await amparoService.guardarResolucionAmparo(
+          incidente_id,
+          sancion_id,
+          formData.value,
+        );
+
+        incidenciaStore.setIncidencia(response as Incidencia);
+        emit('upload-success');
+        closeModal();
+        $q.notify({
+          type: 'positive',
+          message: 'Resolucion de amparo agregado correctamente',
+        });
+      } catch (error: unknown) {
+        let message = 'Error inesperado';
+        if (error instanceof Error) {
+          message = error.message;
+        }
+
+        $q.notify({
+          type: 'negative',
+          message,
+        });
+        return;
+      }
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'No se ha subido ningún archivo',
+      });
+      return;
+    }
+  });
 };
 
 function onFileAdded(files: readonly File[]) {
@@ -338,5 +370,20 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+function clearform() {
+  formulario.value?.resetValidation();
+  formData.value = {
+    fecha_resolucion: '',
+    fecha_inicio_sancion: '',
+    fecha_fin_sancion: '',
+    observaciones_resolucion: '',
+    resolucion_juez: '',
+    amparo_resolucion_file: '',
+    fecha_suspencion: '',
+  };
+  localStorage.removeItem('archivo');
+  clearPreview();
 }
 </script>

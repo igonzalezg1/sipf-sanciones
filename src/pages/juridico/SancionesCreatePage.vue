@@ -539,7 +539,7 @@
           <q-stepper-navigation>
             <q-btn
               @click="step = 5"
-              color="primary"
+              color="positive"
               label="Continuar"
               v-if="puedeVerResolucionApelacion(sancion)"
             />

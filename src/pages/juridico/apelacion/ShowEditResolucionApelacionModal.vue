@@ -265,7 +265,6 @@ function parseToInputDate(fecha: string): string {
   return `${year}-${month}-${day}`;
 }
 
-// Tu data
 const formData = ref<ApelacionResolucionCreate>({
   fecha_resolucion: parseToInputDate(sancion.value?.apelacion?.fecha_resolucion ?? ''),
   fecha_inicio_sancion: parseToInputDate(sancion.value?.apelacion?.fecha_inicio_sancion ?? ''),
