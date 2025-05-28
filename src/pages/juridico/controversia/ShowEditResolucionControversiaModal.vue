@@ -159,13 +159,13 @@
 
       <q-card-actions align="right">
         <q-btn
-          flat
           label="Guardar"
           v-if="!isReadonlyShowControversia"
-          color="primary"
+          color="positive"
           @click="saveInfo"
         />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn label="limpiar" color="info" @click="limpiarForm" />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -352,5 +352,19 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+function limpiarForm() {
+  formData.value = {
+    fecha_resolucion: '',
+    fecha_inicio_sancion: '',
+    fecha_fin_sancion: '',
+    observaciones_resolucion: '',
+    resolucion_juez: '',
+    controversia_resolucion_file: '',
+    fecha_suspencion: '',
+  };
+  localStorage.removeItem('archivo');
+  clearPreview();
 }
 </script>

@@ -370,8 +370,9 @@ function clearPreview() {
 function esDisable(): boolean {
   const cuandoAplica = sancion.value?.controversia?.cuando_aplica;
   const fecha_actual = new Date();
-  const fecha_fin = new Date(sancion.value?.fecha_hora_fin_sancion ?? '');
-
+  const fecha_fin = new Date(convertToDateFormat(sancion.value?.fecha_hora_fin_sancion ?? ''));
+  console.log('Fecha fin:', fecha_fin);
+  console.log('Fecha actual:', fecha_actual);
   if (cuandoAplica === 'despues') {
     return true;
   }
@@ -381,4 +382,9 @@ function esDisable(): boolean {
 
   return false;
 }
+
+const convertToDateFormat = (date: string): string => {
+  const [day, month, year] = date.split('/');
+  return `${year}-${month}-${day}`;
+};
 </script>

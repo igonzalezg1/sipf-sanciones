@@ -169,15 +169,20 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="right">
+      <q-card-actions align="center">
         <q-btn
-          flat
           label="Guardar"
           v-if="!props.isReadonlyControversia"
-          color="primary"
+          color="positive"
           @click="saveInfo"
         />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn
+          label="Limpiar"
+          v-if="!props.isReadonlyControversia"
+          color="info"
+          @click="clearForm"
+        />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -363,7 +368,7 @@ const saveInfo = async () => {
         closeModal();
         $q.notify({
           type: 'positive',
-          message: 'Controversia agregada correctamente',
+          message: 'Controversia editada correctamente',
         });
       } catch (error: unknown) {
         let message = 'Error inesperado';
@@ -398,5 +403,18 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+function clearForm() {
+  formData.value = {
+    cuando_aplica: '',
+    fecha_solicitud: '',
+    numero_sesion: '',
+    organo_jurisdiccional: '',
+    observaciones: '',
+    controversia_file: '',
+  };
+  localStorage.removeItem('archivo');
+  clearPreview();
 }
 </script>
