@@ -638,10 +638,15 @@
   <UploadFileModal
     v-model="showModalUpload"
     @upload-success="actualizarInfo"
+    @update:model-value="actualizarInfo"
     :sancionId="sancion.id"
     v-if="sancion"
   />
-  <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
+  <ShowEditModal
+    v-model="showEdiModal"
+    @update:model-value="actualizarInfo"
+    :readonly="isReadonly"
+  />
   <ShowSancionModal v-model="showSancionModal" />
 
   <AgregarControversiaModal
@@ -676,6 +681,7 @@
   <ShowEditApelacionModal
     v-model="apelacionEditModal"
     :isReadonlyApelacion="isReadonlyApelacion"
+    @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
 
@@ -1129,12 +1135,9 @@ async function enviarComiteTecnico(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1148,12 +1151,9 @@ async function enviarSeguridadControversia(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1167,12 +1167,9 @@ async function enviarComiteTecnicoApelacion(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1186,12 +1183,9 @@ async function enviarSeguridadApelacion(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1205,12 +1199,9 @@ async function enviarComiteTecnicoAmparo(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1224,12 +1215,9 @@ async function enviarSeguridadAmparo(): Promise<void> {
     sancion.value?.id ?? null,
   );
 
-  incidencia.value = response;
-  sancion.value = incidencia.value.sanciones.data[0];
-
-  localStorage.setItem('sanciones', JSON.stringify(incidencia.value.sanciones.data[0]));
-  localStorage.setItem('incidencia', JSON.stringify(incidencia.value));
-  window.location.reload();
+  await router.push({
+    path: '/juridico',
+  });
 
   $q.notify({
     type: 'positive',
@@ -1247,6 +1235,10 @@ async function suspenderSancion(): Promise<void> {
     $q.notify({
       type: 'positive',
       message: 'Sanción suspendida correctamente',
+    });
+
+    await router.push({
+      path: '/juridico',
     });
   } else {
     $q.notify({

@@ -186,6 +186,7 @@
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
+import { useRouter } from 'vue-router';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
@@ -201,6 +202,7 @@ import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
 import EditValidator from 'src/app/validators/apelacion/edit.validator';
 
 // Variables
+const router = useRouter();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
@@ -362,6 +364,9 @@ const saveInfo = async () => {
 
         incidenciaStore.setIncidencia(response);
         emit('upload-success');
+        await router.push({
+          path: '/juridico',
+        });
         closeModal();
         $q.notify({
           type: 'positive',

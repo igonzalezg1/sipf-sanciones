@@ -180,6 +180,7 @@
 import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QRejectedEntry } from 'quasar';
+import { useRouter } from 'vue-router';
 // Components
 import InputText from 'src/shared/ui/InputText.vue';
 // Modelos
@@ -195,6 +196,7 @@ import { AmparoService } from 'src/app/services/sanciones/AmparoService';
 import EditValidator from 'src/app/validators/amparo/edit-resolucion.validator';
 
 // Variables
+const router = useRouter();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'upload-success'): void;
@@ -347,6 +349,9 @@ const saveInfo = async () => {
 
         incidenciaStore.setIncidencia(response as Incidencia);
         emit('upload-success');
+        await router.push({
+          path: '/juridico',
+        });
         closeModal();
         $q.notify({
           type: 'positive',
