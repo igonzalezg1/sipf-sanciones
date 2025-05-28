@@ -57,13 +57,8 @@ async function cargarIncidencias(goToFirstPage = false) {
 
   const params: Record<string, unknown> = {};
 
-  if (persona?.id && expediente?.id) {
-    params.scope = { porExpedienteEnviado: expediente.id };
-    params.include = `sanciones:persona_id(${persona.id}),involucrados_para_sancion`;
-  } else {
-    params.scope = { porCentro: sessionStore.centro?.id ?? 0 };
-    params.include = 'sanciones,involucrados_para_sancion';
-  }
+  params.scope = { porCentro: sessionStore.centro?.id ?? 0 };
+  params.include = 'sanciones,involucrados_para_sancion';
 
   try {
     const response: PaginatedResponse<Incidencia> | null =
