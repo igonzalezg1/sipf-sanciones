@@ -279,7 +279,7 @@
             <q-card-section class="text-center q-pa-md">
               <q-btn
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Ver sanción"
                 v-if="!eneableEditSancion(sancion)"
                 @click="
@@ -291,7 +291,7 @@
               />
               <q-btn
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Editar sanción"
                 v-if="eneableEditSancion(sancion)"
                 @click="
@@ -304,7 +304,7 @@
               />
               <q-btn
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 v-if="!eneableEditSancion(sancion)"
                 label="Suspender sanción"
                 icon="stop_circle"
@@ -312,7 +312,7 @@
               <q-btn
                 v-if="eneableDownloadDocument(sancion)"
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Imprimir acta de sanción"
                 @click="getPdf"
                 icon="description"
@@ -320,7 +320,7 @@
               <q-btn
                 v-if="eneableDownloadDocument(sancion)"
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Adjuntar acta de sanción"
                 @click="showModalUpload = true"
                 icon="attach_file"
@@ -328,7 +328,7 @@
               <q-btn
                 v-if="eneableShowDocument(sancion)"
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Ver acta de sanción"
                 @click="getPdfUploaded"
                 icon="file_present"
@@ -336,7 +336,7 @@
               <q-btn
                 v-if="eneableSendSecurity(sancion)"
                 class="q-ma-sm"
-                color="primary"
+                color="positive"
                 label="Enviar a seguridad"
                 @click="mandarSeguridad"
                 icon="send"
@@ -347,7 +347,7 @@
           <q-stepper-navigation>
             <q-btn
               @click="step = 2"
-              color="primary"
+              color="positive"
               label="Continuar"
               v-if="eneableControversia(sancion)"
             />
@@ -372,7 +372,7 @@
               <q-btn
                 v-if="puedeAgregarControversia(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="agregar controversia"
                 icon="playlist_add"
                 @click="agregarControversia"
@@ -380,7 +380,7 @@
               <q-btn
                 v-if="puedeEditarControversia(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar solicitud de controversia"
                 icon="visibility"
                 @click="editarControversia"
@@ -389,7 +389,7 @@
               <q-btn
                 v-if="puedeVerControversia(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar solicitud de controversia"
                 icon="visibility"
                 @click="verControversia"
@@ -398,7 +398,7 @@
               <q-btn
                 v-if="puedeMandarComite(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a comité técnico"
                 icon="visibility"
                 @click="enviarComiteTecnico"
@@ -407,7 +407,7 @@
               <q-btn
                 v-if="puedeAgregarResolucion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Agregar resolución de controversia"
                 icon="playlist_add"
                 @click="agregarResolucionControversia"
@@ -415,7 +415,7 @@
               <q-btn
                 v-if="puedeEditarResolucion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar resolución de controversia"
                 icon="visibility"
                 @click="editResolucionControversia"
@@ -423,7 +423,7 @@
               <q-btn
                 v-if="puedeVerResolucion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar resolución de controversia"
                 icon="visibility"
                 @click="verResolucionControversia"
@@ -432,7 +432,7 @@
               <q-btn
                 v-if="puedeMandarSeguridad(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a seguridad"
                 icon="visibility"
                 @click="enviarSeguridadControversia"
@@ -443,11 +443,11 @@
           <q-stepper-navigation>
             <q-btn
               @click="step = 4"
-              color="primary"
+              color="positive"
               label="Continuar"
               v-if="puedeVerResolucion(sancion)"
             />
-            <q-btn flat @click="step = 1" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn @click="step = 1" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
 
@@ -468,7 +468,7 @@
               <q-btn
                 v-if="puedeAgregarApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="agregar apelacion"
                 icon="playlist_add"
                 @click="agregarApelacion"
@@ -476,7 +476,7 @@
               <q-btn
                 v-if="puedeEditarApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar solicitud de apelacion"
                 icon="visibility"
                 @click="editarApelacion"
@@ -485,7 +485,7 @@
               <q-btn
                 v-if="puedeVerApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar solicitud de apelacion"
                 icon="visibility"
                 @click="verApelacion"
@@ -494,7 +494,7 @@
               <q-btn
                 v-if="puedeMandarComiteApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a comité técnico"
                 icon="visibility"
                 @click="enviarComiteTecnicoApelacion"
@@ -503,7 +503,7 @@
               <q-btn
                 v-if="puedeAgregarResolucionApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Agregar resolución de apelacion"
                 icon="playlist_add"
                 @click="agregarResolucionApelacion"
@@ -511,7 +511,7 @@
               <q-btn
                 v-if="puedeEditarResolucionApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar resolución de apelacion"
                 icon="visibility"
                 @click="editResolucionApelacion"
@@ -519,7 +519,7 @@
               <q-btn
                 v-if="puedeVerResolucionApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar resolución de apelacion"
                 icon="visibility"
                 @click="verResolucionApelacion"
@@ -528,7 +528,7 @@
               <q-btn
                 v-if="puedeMandarSeguridadApelacion(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a seguridad"
                 icon="visibility"
                 @click="enviarSeguridadApelacion"
@@ -543,7 +543,7 @@
               label="Continuar"
               v-if="puedeVerResolucionApelacion(sancion)"
             />
-            <q-btn flat @click="step = 2" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn @click="step = 2" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
         <q-step :name="5" title="OPCIONES AMPARO" icon="add_comment">
@@ -558,7 +558,7 @@
               <q-btn
                 v-if="puedeAgregarAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="agregar amparo"
                 icon="playlist_add"
                 @click="agregarAmparo"
@@ -566,7 +566,7 @@
               <q-btn
                 v-if="puedeEditarAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar solicitud de amparo"
                 icon="visibility"
                 @click="editarAmparo"
@@ -575,7 +575,7 @@
               <q-btn
                 v-if="puedeVerAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar solicitud de amparo"
                 icon="visibility"
                 @click="verAmparo"
@@ -584,7 +584,7 @@
               <q-btn
                 v-if="puedeMandarComiteAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a comité técnico"
                 icon="visibility"
                 @click="enviarComiteTecnicoAmparo"
@@ -593,7 +593,7 @@
               <q-btn
                 v-if="puedeAgregarResolucionAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Agregar resolución de amparo"
                 icon="playlist_add"
                 @click="agregarResolucionAmparo"
@@ -601,7 +601,7 @@
               <q-btn
                 v-if="puedeEditarResolucionAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Editar resolución de amparo"
                 icon="visibility"
                 @click="editResolucionAmparo"
@@ -609,7 +609,7 @@
               <q-btn
                 v-if="puedeVerResolucionAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Consultar resolución de amparo"
                 icon="visibility"
                 @click="verResolucionAmparo"
@@ -618,7 +618,7 @@
               <q-btn
                 v-if="puedeMandarSeguridadAmparo(sancion)"
                 class="q-mx-lg"
-                color="primary"
+                color="positive"
                 label="Enviar a seguridad"
                 icon="visibility"
                 @click="enviarSeguridadAmparo"
@@ -627,7 +627,7 @@
           </q-card>
 
           <q-stepper-navigation>
-            <q-btn flat @click="step = 4" color="primary" label="Ver anterior" class="q-ml-sm" />
+            <q-btn @click="step = 4" color="negative" label="Ver anterior" class="q-ml-sm" />
           </q-stepper-navigation>
         </q-step>
       </q-stepper>
