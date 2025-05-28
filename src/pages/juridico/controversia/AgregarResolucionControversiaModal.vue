@@ -159,8 +159,9 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn label="Guardar" color="positive" @click="saveInfo" />
+        <q-btn label="Limpiar" color="info" @click="clearForm" />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -203,6 +204,7 @@ const $q = useQuasar();
 const controversiaService = new ControversiaService();
 
 const incidencia = incidenciaStore.getIncidencia();
+const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
 const urlAmbiente = () => {
@@ -234,7 +236,6 @@ const uploadHeaders = [
   { name: 'Authorization', value: `Bearer ${token}` },
 ];
 const filePreviewUrl = ref<string | null>(null);
-const formulario = ref();
 
 function parseToInputDate(fecha: string): string {
   if (!fecha || typeof fecha !== 'string') return '';
@@ -387,4 +388,19 @@ const convertToDateFormat = (date: string): string => {
   const [day, month, year] = date.split('/');
   return `${year}-${month}-${day}`;
 };
+
+function clearForm() {
+  formulario.value?.resetValidation();
+  formData.value = {
+    fecha_resolucion: '',
+    fecha_inicio_sancion: parseToInputDate(sancion.value?.fecha_hora_inicio_sancion ?? ''),
+    fecha_fin_sancion: parseToInputDate(sancion.value?.fecha_hora_fin_sancion ?? ''),
+    observaciones_resolucion: '',
+    resolucion_juez: '',
+    controversia_resolucion_file: '',
+    fecha_suspencion: '',
+  };
+  localStorage.removeItem('archivo');
+  clearPreview();
+}
 </script>

@@ -686,6 +686,7 @@
 
   <ShowEditResolucionApelacionModal
     v-model="verditApelacionModal"
+    :isReadonlyResolucionApelacion="isReadonlyResolucionApelacion"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
@@ -1082,8 +1083,8 @@ function agregarResolucionApelacion(): void {
 }
 
 function editResolucionApelacion(): void {
-  verditcontroversiaModal.value = true;
-  isReadonlyResolucionControversia.value = true;
+  verditApelacionModal.value = true;
+  isReadonlyResolucionApelacion.value = false;
 }
 
 function verResolucionApelacion(): void {
