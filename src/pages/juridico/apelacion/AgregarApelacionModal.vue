@@ -67,7 +67,7 @@
             se pueda pausar la misma a partir de que se creó y asignó comité técnico.
           </q-banner>
 
-          <q-form>
+          <q-form ref="formulario">
             <select-custom
               v-model="formData.cuando_aplica"
               :options="[
@@ -77,6 +77,7 @@
               ]"
               label="cuando aplica la apelacion"
               clearable
+              :rules="CreateValidator.cuando_aplica"
               class="q-ma-md"
             >
               <template #prepend>
@@ -87,6 +88,7 @@
               v-model="formData.fecha_solicitud"
               label="Fecha de admisión de apelacion"
               clearable
+              :rules="CreateValidator.fecha_solicitud"
               type="date"
               class="q-ma-md"
             >
@@ -99,13 +101,10 @@
               label="Número de sesión"
               placeholder="Escribe el número de sesión"
               clearable
+              :rules="CreateValidator.numero_sesion"
               class="q-ma-md"
               type="text"
             >
-              <!-- TODO: Usar para validar -->
-              <!-- <template #append>
-                <q-icon name="check_circle" color="positive" />
-              </template> -->
               <template #prepend>
                 <q-icon name="person" />
               </template>
@@ -115,13 +114,10 @@
               label="Órgano jurisdiccional que determino la apelacion"
               placeholder="Escribe el Órgano jurisdiccional que determino la apelacion"
               clearable
+              :rules="CreateValidator.organo_jurisdiccional"
               class="q-ma-md"
               type="text"
             >
-              <!-- TODO: Usar para validar -->
-              <!-- <template #append>
-                <q-icon name="check_circle" color="positive" />
-              </template> -->
               <template #prepend>
                 <q-icon name="person" />
               </template>
@@ -130,6 +126,7 @@
               v-model="formData.observaciones"
               label="Observaciones de la apelacion"
               clearable
+              :rules="CreateValidator.observaciones"
               type="textarea"
               class="q-ma-md"
             >
@@ -172,8 +169,9 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn label="Guardar" color="positive" @click="saveInfo" />
+        <q-btn label="limpiar" color="info" @click="clearForm" />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -195,6 +193,8 @@ import { useIncidenciaStore } from 'stores/incidencias';
 import { useSessionStore } from 'src/stores/session';
 // Services
 import { ApelacionService } from 'src/app/services/sanciones/ApelacionService';
+// Validators
+import CreateValidator from 'src/app/validators/apelacion/create.validator';
 
 // Variables
 const emit = defineEmits<{
@@ -214,6 +214,7 @@ const $q = useQuasar();
 const apelacionService = new ApelacionService();
 
 const incidencia = incidenciaStore.getIncidencia();
+const formulario = ref();
 const token = sessionStore.token;
 const sancion = ref<SancionData | null>(incidencia.sanciones.data[0] ?? null);
 const urlAmbiente = () => {
@@ -301,51 +302,61 @@ const onUploadFailed = (info: { files: readonly File[]; xhr: XMLHttpRequest }) =
 };
 
 const saveInfo = async () => {
-  const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
-  if (filename.path) {
-    try {
-      formData.value.apelacion_file = filename.path;
-      const incidente_id = incidencia.id;
-      const sancion_id = sancion.value?.id;
-      if (!incidente_id || !sancion_id) {
-        $q.notify({
-          type: 'negative',
-          message: 'Error al obtener el incidente o la sanción',
-        });
-        return;
-      }
-      const response = await apelacionService.agregarSancion(
-        incidente_id,
-        sancion_id,
-        formData.value,
-      );
-
-      incidenciaStore.setIncidencia(response);
-      emit('upload-success');
-      closeModal();
-      $q.notify({
-        type: 'positive',
-        message: 'Apelacion agregada correctamente',
-      });
-    } catch (error: unknown) {
-      let message = 'Error inesperado';
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
+  await formulario.value.validate().then(async (exito: boolean) => {
+    if (!exito) {
       $q.notify({
         type: 'negative',
-        message,
+        message: 'Por favor, completa todos los campos requeridos',
       });
       return;
     }
-  } else {
-    $q.notify({
-      type: 'negative',
-      message: 'No se ha subido ningún archivo',
-    });
-    return;
-  }
+
+    const filename = JSON.parse(localStorage.getItem('archivo') ?? '{}');
+    if (filename.path) {
+      try {
+        formData.value.apelacion_file = filename.path;
+        const incidente_id = incidencia.id;
+        const sancion_id = sancion.value?.id;
+        if (!incidente_id || !sancion_id) {
+          $q.notify({
+            type: 'negative',
+            message: 'Error al obtener el incidente o la sanción',
+          });
+          return;
+        }
+        const response = await apelacionService.agregarSancion(
+          incidente_id,
+          sancion_id,
+          formData.value,
+        );
+
+        incidenciaStore.setIncidencia(response);
+        emit('upload-success');
+        closeModal();
+        $q.notify({
+          type: 'positive',
+          message: 'Apelacion agregada correctamente',
+        });
+      } catch (error: unknown) {
+        let message = 'Error inesperado';
+        if (error instanceof Error) {
+          message = error.message;
+        }
+
+        $q.notify({
+          type: 'negative',
+          message,
+        });
+        return;
+      }
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: 'No se ha subido ningún archivo',
+      });
+      return;
+    }
+  });
 };
 
 function onFileAdded(files: readonly File[]) {
@@ -359,5 +370,19 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+function clearForm() {
+  formulario.value.resetValidation();
+  formData.value = {
+    cuando_aplica: null,
+    fecha_solicitud: null,
+    numero_sesion: null,
+    organo_jurisdiccional: null,
+    observaciones: null,
+    apelacion_file: null,
+  };
+  localStorage.removeItem('archivo');
+  filePreviewUrl.value = null;
 }
 </script>

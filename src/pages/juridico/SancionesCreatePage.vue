@@ -382,7 +382,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar solicitud de controversia"
-                icon="visibility"
+                icon="edit_document"
                 @click="editarControversia"
               />
 
@@ -400,7 +400,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a comité técnico"
-                icon="visibility"
+                icon="send"
                 @click="enviarComiteTecnico"
               />
               <!-- Resolucion de controversia -->
@@ -417,7 +417,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar resolución de controversia"
-                icon="visibility"
+                icon="edit_document"
                 @click="editResolucionControversia"
               />
               <q-btn
@@ -434,7 +434,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a seguridad"
-                icon="visibility"
+                icon="send"
                 @click="enviarSeguridadControversia"
               />
             </q-card-section>
@@ -478,7 +478,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar solicitud de apelacion"
-                icon="visibility"
+                icon="edit_document"
                 @click="editarApelacion"
               />
 
@@ -496,7 +496,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a comité técnico"
-                icon="visibility"
+                icon="send"
                 @click="enviarComiteTecnicoApelacion"
               />
               <!-- Resolucion de apelacion -->
@@ -513,7 +513,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar resolución de apelacion"
-                icon="visibility"
+                icon="edit_document"
                 @click="editResolucionApelacion"
               />
               <q-btn
@@ -530,7 +530,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a seguridad"
-                icon="visibility"
+                icon="send"
                 @click="enviarSeguridadApelacion"
               />
             </q-card-section>
@@ -568,7 +568,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar solicitud de amparo"
-                icon="visibility"
+                icon="edit_document"
                 @click="editarAmparo"
               />
 
@@ -586,7 +586,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a comité técnico"
-                icon="visibility"
+                icon="send"
                 @click="enviarComiteTecnicoAmparo"
               />
               <!-- Resolucion de amparo -->
@@ -603,7 +603,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Editar resolución de amparo"
-                icon="visibility"
+                icon="edit_document"
                 @click="editResolucionAmparo"
               />
               <q-btn
@@ -620,7 +620,7 @@
                 class="q-mx-lg"
                 color="positive"
                 label="Enviar a seguridad"
-                icon="visibility"
+                icon="send"
                 @click="enviarSeguridadAmparo"
               />
             </q-card-section>

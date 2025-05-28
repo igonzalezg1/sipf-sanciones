@@ -25,6 +25,10 @@ export interface Apelacion {
   organo_jurisdiccional: string | null;
   tipo_sancion: string | null;
   id: number | null;
+  cuando_aplica: string | null;
+  numero_sesion: string | null;
+  resolucion_juez: string | null;
+  apelacion_file: string | null;
 }
 
 export interface ApelacionResolucionCreate {
