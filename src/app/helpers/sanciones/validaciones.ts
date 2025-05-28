@@ -107,3 +107,11 @@ export function eneableEditSancion(sancion: SancionData): boolean {
   // return noFile && notAttended && isJuridicoPath && (canEditByConsejo || canEditByJuridico);
   return noFile && notAttended;
 }
+
+export function esSuspendida(sancion: SancionData): boolean {
+  if (!sancion) return false;
+  if (sancion.etapa_sancion === 'Suspendida') {
+    return true;
+  }
+  return false;
+}

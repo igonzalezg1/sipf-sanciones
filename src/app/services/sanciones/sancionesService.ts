@@ -20,4 +20,8 @@ export class SancionesService extends BaseService {
     const payload = {};
     return this.patch(`${this.baseUrl}/${sancion_id}/enviar`, payload);
   }
+
+  async suspenderSancion(id?: number): Promise<unknown> {
+    return this.patch(`${this.baseUrl}/${id}/suspender`);
+  }
 }

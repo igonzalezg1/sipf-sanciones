@@ -305,9 +305,10 @@
               <q-btn
                 class="q-ma-sm"
                 color="positive"
-                v-if="!eneableEditSancion(sancion)"
+                v-if="!eneableEditSancion(sancion) && !esSuspendida(sancion)"
                 label="Suspender sanción"
                 icon="stop_circle"
+                @click="suspenderSancion"
               />
               <q-btn
                 v-if="eneableDownloadDocument(sancion)"
@@ -728,6 +729,7 @@ import {
   eneableShowDocument,
   eneableSendSecurity,
   eneableEditSancion,
+  esSuspendida,
 } from 'src/app/helpers/sanciones/validaciones';
 import {
   puedeAgregarControversia,
@@ -1233,6 +1235,25 @@ async function enviarSeguridadAmparo(): Promise<void> {
     type: 'positive',
     message: 'Amparo enviado a seguridad correctamente',
   });
+}
+
+async function suspenderSancion(): Promise<void> {
+  const response = await sancionesService.suspenderSancion(sancion.value?.id);
+  if (response) {
+    await router.push({
+      path: '/juridico',
+    });
+
+    $q.notify({
+      type: 'positive',
+      message: 'Sanción suspendida correctamente',
+    });
+  } else {
+    $q.notify({
+      type: 'negative',
+      message: 'Error al suspender la sanción',
+    });
+  }
 }
 
 function cleanForm(): void {
