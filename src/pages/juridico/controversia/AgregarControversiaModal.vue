@@ -28,7 +28,7 @@
               <th>#</th>
               <th>PPL</th>
               <th>Expediente</th>
-              <th>Tipo de participación</th>
+              <th>Ubicación</th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +36,7 @@
               <td>{{ index + 1 }}</td>
               <td>{{ involucrado.nombre_completo }}</td>
               <td>{{ involucrado.identificador }}</td>
-              <td>{{ involucrado.tipo_participacion?.label }}</td>
+              <td>{{ involucrado.ubicacion }}</td>
             </tr>
           </tbody>
         </table>
@@ -164,8 +164,9 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat label="Guardar" color="primary" @click="saveInfo" />
-        <q-btn flat label="Cancelar" color="primary" @click="closeModal" />
+        <q-btn label="Guardar" color="positive" @click="saveInfo" />
+        <q-btn label="Limpiar" color="info" @click="clearForm" />
+        <q-btn label="Cancelar" color="negative" @click="closeModal" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -383,5 +384,19 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+function clearForm() {
+  formulario.value.resetValidation();
+  formData.value = {
+    cuando_aplica: null,
+    fecha_solicitud: null,
+    numero_sesion: null,
+    organo_jurisdiccional: null,
+    observaciones: null,
+    controversia_file: null,
+  };
+  localStorage.removeItem('archivo');
+  filePreviewUrl.value = null;
 }
 </script>

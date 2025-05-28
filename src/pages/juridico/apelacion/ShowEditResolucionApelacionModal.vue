@@ -28,7 +28,7 @@
               <th>#</th>
               <th>PPL</th>
               <th>Expediente</th>
-              <th>Tipo de participación</th>
+              <th>Ubicación</th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +36,7 @@
               <td>{{ index + 1 }}</td>
               <td>{{ involucrado.nombre_completo }}</td>
               <td>{{ involucrado.identificador }}</td>
-              <td>{{ involucrado.tipo_participacion?.label }}</td>
+              <td>{{ involucrado.ubicacion }}</td>
             </tr>
           </tbody>
         </table>
