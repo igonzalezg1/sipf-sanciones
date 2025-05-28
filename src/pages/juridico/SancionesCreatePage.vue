@@ -233,11 +233,28 @@
     <div class="col-12">
       <q-btn
         v-if="sancionId == 0"
-        class="q-mt-md"
-        color="primary"
+        class="q-ma-md"
+        color="positive"
         label="Crear Sanción"
         @click="guardarSancion"
         icon="add"
+      />
+      <q-btn
+        v-if="sancionId == 0"
+        class="q-ma-md"
+        color="info"
+        label="Limpiar formulario"
+        @click="cleanForm"
+        icon="edit"
+      />
+
+      <q-btn
+        v-if="sancionId == 0"
+        class="q-ma-md"
+        color="negative"
+        label="Cancelar"
+        @click="$router.push({ path: '/juridico' })"
+        icon="cancel"
       />
     </div>
   </div>
@@ -267,8 +284,7 @@
                 v-if="!eneableEditSancion(sancion)"
                 @click="
                   () => {
-                    isReadonly = true;
-                    showEdiModal = true;
+                    showSancionModal = true;
                   }
                 "
                 icon="visibility"
@@ -625,6 +641,7 @@
     v-if="sancion"
   />
   <ShowEditModal v-model="showEdiModal" :readonly="isReadonly" />
+  <ShowSancionModal v-model="showSancionModal" />
 
   <AgregarControversiaModal
     v-model="controversiaCreateModal"
@@ -749,6 +766,7 @@ import InputText from 'src/shared/ui/InputText.vue';
 import SelectCustom from 'src/shared/ui/SelectCustom.vue';
 import UploadFileModal from './UploadFileModal.vue';
 import ShowEditModal from './ShowEditModal.vue';
+import ShowSancionModal from './ShowSancionModal.vue';
 import AgregarControversiaModal from './controversia/AgregarControversiaModal.vue';
 import showEditcontroversiaModal from './controversia/ShowEditControversiaModal.vue';
 import AgregarSolicitudControversiaModal from './controversia/AgregarResolucionControversiaModal.vue';
@@ -784,6 +802,7 @@ const $q = useQuasar();
 // Variables de modales
 const showModalUpload = ref(false);
 const showEdiModal = ref(false);
+const showSancionModal = ref(false);
 const controversiaCreateModal = ref(false);
 const controversiaEditModal = ref(false);
 const agregarResolucionControversiaM = ref(false);
@@ -1213,6 +1232,27 @@ async function enviarSeguridadAmparo(): Promise<void> {
     type: 'positive',
     message: 'Amparo enviado a seguridad correctamente',
   });
+}
+
+function cleanForm(): void {
+  dataForm.value = {
+    tipo_sancion_id: null,
+    no_sesion_comite: '',
+    fecha_registro: '',
+    fecha_hora_inicio_sancion: '',
+    fecha_hora_fin_sancion: '',
+    dias_sancion: '',
+    observaciones: '',
+    descripcion: '',
+    firmante_1_nombre: '',
+    firmante_1_cargo: '',
+    firmante_2_nombre: '',
+    firmante_2_cargo: '',
+    involucrados: '',
+    centro_id: null,
+  };
+  involucradosSelected.value = [];
+  selected.value = {};
 }
 </script>
 <style scoped></style>
