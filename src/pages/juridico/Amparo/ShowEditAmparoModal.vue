@@ -74,6 +74,7 @@
               label="cuando aplica la amparo"
               clearable
               :rules="EditValidator.cuando_aplica"
+              :readonly="props.isReadonlyAmparo"
               class="q-ma-md"
             >
               <template #prepend>
@@ -85,6 +86,7 @@
               label="Fecha de admisión de amparo"
               clearable
               :rules="EditValidator.fecha_solicitud"
+              :readonly="props.isReadonlyAmparo"
               type="date"
               class="q-ma-md"
             >
@@ -98,6 +100,7 @@
               placeholder="Escribe el número de sesión"
               clearable
               :rules="EditValidator.numero_sesion"
+              :readonly="props.isReadonlyAmparo"
               class="q-ma-md"
               type="text"
             >
@@ -111,6 +114,7 @@
               placeholder="Escribe el Órgano jurisdiccional que determino la amparo"
               clearable
               :rules="EditValidator.organo_jurisdiccional"
+              :readonly="props.isReadonlyAmparo"
               class="q-ma-md"
               type="text"
             >
@@ -123,6 +127,7 @@
               label="Observaciones de la amparo"
               clearable
               :rules="EditValidator.observaciones"
+              :readonly="props.isReadonlyAmparo"
               type="textarea"
               class="q-ma-md"
             >

@@ -50,6 +50,7 @@
               label="Fecha de resolución de amparo"
               clearable
               :rules="EditValidator.fecha_resolucion"
+              :readonly="props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -63,7 +64,7 @@
               label="Fecha de inicio de la sanción"
               clearable
               :rules="EditValidator.fecha_inicio_sancion"
-              :readonly="esDisable()"
+              :readonly="esDisable() || props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -77,7 +78,7 @@
               label="Fecha fin de la sanción"
               clearable
               :rules="EditValidator.fecha_fin_sancion"
-              :readonly="esDisable()"
+              :readonly="esDisable() || isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -91,6 +92,7 @@
               label="Fecha de suspencion de la sanción"
               clearable
               :rules="EditValidator.fecha_suspencion"
+              :readonly="props.isReadOnly"
               type="date"
               class="q-ma-md"
             >
@@ -104,6 +106,7 @@
               label="Observaciones de la amparo"
               clearable
               :rules="EditValidator.observaciones_resolucion"
+              :readonly="isReadOnly"
               type="textarea"
               class="q-ma-md"
             >
@@ -117,6 +120,7 @@
               label="Resolución  del Juez"
               clearable
               :rules="EditValidator.resolucion_juez"
+              :readonly="isReadOnly"
               type="textarea"
               class="q-ma-md"
             >

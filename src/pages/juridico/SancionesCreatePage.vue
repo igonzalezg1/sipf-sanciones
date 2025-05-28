@@ -716,6 +716,7 @@
 
   <ShowEditResolucionAmparoModal
     v-model="verditAmparoModal"
+    :isReadOnly="isReadonlyResolucionAmparo"
     @update:model-value="actualizarInfo"
     @upload-success="actualizarInfo"
   />
@@ -1120,7 +1121,7 @@ function agregarResolucionAmparo(): void {
 }
 
 function editResolucionAmparo(): void {
-  verditcontroversiaModal.value = true;
+  verditAmparoModal.value = true;
   isReadonlyResolucionControversia.value = true;
 }
 
@@ -1130,10 +1131,7 @@ function verResolucionAmparo(): void {
 }
 
 async function enviarComiteTecnico(): Promise<void> {
-  const response = await controversiaService.enviarComiteTecnico(
-    incidencia.value.id,
-    sancion.value?.id ?? null,
-  );
+  await controversiaService.enviarComiteTecnico(incidencia.value.id, sancion.value?.id ?? null);
 
   await router.push({
     path: '/juridico',
@@ -1146,10 +1144,7 @@ async function enviarComiteTecnico(): Promise<void> {
 }
 
 async function enviarSeguridadControversia(): Promise<void> {
-  const response = await controversiaService.enviarSeguridad(
-    incidencia.value.id,
-    sancion.value?.id ?? null,
-  );
+  await controversiaService.enviarSeguridad(incidencia.value.id, sancion.value?.id ?? null);
 
   await router.push({
     path: '/juridico',
@@ -1162,7 +1157,7 @@ async function enviarSeguridadControversia(): Promise<void> {
 }
 
 async function enviarComiteTecnicoApelacion(): Promise<void> {
-  const response = await apelacionService.enviarComiteTecnicoApelacion(
+  await apelacionService.enviarComiteTecnicoApelacion(
     incidencia.value.id,
     sancion.value?.id ?? null,
   );
@@ -1178,10 +1173,7 @@ async function enviarComiteTecnicoApelacion(): Promise<void> {
 }
 
 async function enviarSeguridadApelacion(): Promise<void> {
-  const response = await apelacionService.enviarSeguridadApelacion(
-    incidencia.value.id,
-    sancion.value?.id ?? null,
-  );
+  await apelacionService.enviarSeguridadApelacion(incidencia.value.id, sancion.value?.id ?? null);
 
   await router.push({
     path: '/juridico',
@@ -1194,10 +1186,7 @@ async function enviarSeguridadApelacion(): Promise<void> {
 }
 
 async function enviarComiteTecnicoAmparo(): Promise<void> {
-  const response = await amparoService.enviarComiteTecnicoAmparo(
-    incidencia.value.id,
-    sancion.value?.id ?? null,
-  );
+  await amparoService.enviarComiteTecnicoAmparo(incidencia.value.id, sancion.value?.id ?? null);
 
   await router.push({
     path: '/juridico',
@@ -1210,10 +1199,7 @@ async function enviarComiteTecnicoAmparo(): Promise<void> {
 }
 
 async function enviarSeguridadAmparo(): Promise<void> {
-  const response = await amparoService.enviarSeguridadAmparo(
-    incidencia.value.id,
-    sancion.value?.id ?? null,
-  );
+  await amparoService.enviarSeguridadAmparo(incidencia.value.id, sancion.value?.id ?? null);
 
   await router.push({
     path: '/juridico',
