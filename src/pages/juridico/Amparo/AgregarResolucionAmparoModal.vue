@@ -63,6 +63,7 @@
               label="Fecha de inicio de la sanción"
               clearable
               :rules="CreateValidator.fecha_inicio_sancion"
+              :readonly="esDisable()"
               type="date"
               class="q-ma-md"
             >
@@ -76,6 +77,7 @@
               label="Fecha fin de la sanción"
               clearable
               :rules="CreateValidator.fecha_fin_sancion"
+              :readonly="esDisable()"
               type="date"
               class="q-ma-md"
             >
@@ -364,6 +366,27 @@ function clearPreview() {
     URL.revokeObjectURL(filePreviewUrl.value);
     filePreviewUrl.value = null;
   }
+}
+
+const convertToDateFormat = (date: string): string => {
+  const [day, month, year] = date.split('/');
+  return `${year}-${month}-${day}`;
+};
+
+function esDisable(): boolean {
+  const cuandoAplica = sancion.value?.amparo?.cuando_aplica;
+  const fecha_actual = new Date();
+  const fecha_fin = new Date(convertToDateFormat(sancion.value?.fecha_hora_fin_sancion ?? ''));
+  console.log('Fecha fin:', fecha_fin);
+  console.log('Fecha actual:', fecha_actual);
+  if (cuandoAplica === 'despues') {
+    return true;
+  }
+  if (fecha_fin < fecha_actual) {
+    return true;
+  }
+
+  return false;
 }
 
 function clearForm() {
