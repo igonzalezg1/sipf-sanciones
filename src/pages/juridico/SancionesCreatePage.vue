@@ -1000,9 +1000,17 @@ function actualizarInfo(): void {
  * @returns
  */
 function getPdfUploaded(): void {
-  const fileUrl = `${urlAmbiente()}${sancion.value?.sancion_file}`;
+  const fileUrl = buildFileUrl();
   window.open(fileUrl, '_blank');
 }
+
+const buildFileUrl = (): string => {
+  const base = urlAmbiente();
+  const path = sancion.value?.sancion_file ?? '';
+  const fullUrl = `${base}${path}`;
+
+  return fullUrl.replace(/\/storage\/storage\//, '/storage/');
+};
 
 /**
  * Funcion para enviar la sancion a seguridad
